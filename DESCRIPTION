@@ -1,14 +1,21 @@
 Package: distQTL
-Title: What the Package Does (One Line, Title Case)
+Title: Distribution-based eQTL mapping for scRNA-seq data
 Version: 0.0.0.9000
 Authors@R: 
     person("Alexander", "Coulter", , "coultera@tamu.edu", role = c("aut", "cre"))
-Description: What the package does (one paragraph).
-License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
-    license
+Description: This package conducts expression quantitative trait loci (eQTL) mapping from single cell RNA sequencing (scRNA-seq) data sets, using donor level gene expression distributions as the target responses. Inference is conducted with Fréchet regression on 2-Wasserstein space, utilizing asymptotic partial F tests developed for this context.
+License: `use_mit_license()`
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 Suggests: 
-    testthat (>= 3.0.0)
+    knitr,
+    rmarkdown,
+    testthat (>= 3.0.0),
+    microbenchmark
 Config/testthat/edition: 3
+LinkingTo: 
+    Rcpp,
+    RcppArmadillo
+Imports: 
+    Rcpp
