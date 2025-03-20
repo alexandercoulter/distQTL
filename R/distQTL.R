@@ -76,7 +76,7 @@ distQTL = function(genotypeDataTable = NULL,
         w = which(snpInfo$snpID == snpNames[k])
         # k = 2
         # Check the SNP is a cis-SNP for the given gene:
-        if((geneInfo$chromosome[i] == snpInfo$chromosome[w]) && (abs(geneInfo$location[i] - snpInfo$location[w]) <= cisRange)){
+        if((geneInfo$chromosome[i] == snpInfo$chromosome[w]) && (abs(geneInfo$start[i] - snpInfo$start[w]) <= cisRange)){
           
           # Covariate matrix:
           X = cbind(Xcov, genotypeDataTable[[k + 1]])
