@@ -2,7 +2,6 @@
 % Please edit documentation in R/distQTL-package.R
 \docType{package}
 \name{distQTL-package}
-\alias{distQTL}
 \alias{distQTL-package}
 \title{distQTL: Distribution-based eQTL mapping for scRNA-seq data}
 \description{
