@@ -19,4 +19,7 @@ LinkingTo:
     RcppArmadillo
 Imports: 
     Rcpp,
-    data.table
+    data.table,
+    fastfrechet
+Remotes:
+    alexandercoulter/fastfrechet

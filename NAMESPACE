@@ -3,5 +3,6 @@
 export(Wasserstein_F)
 export(distQTL)
 import(data.table)
+import(fastfrechet)
 importFrom(Rcpp,sourceCpp)
 useDynLib(distQTL, .registration = TRUE)

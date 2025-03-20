@@ -9,11 +9,12 @@
 #' @param m A positive integer (default `100`) containing the empirical distribution grid density, i.e. for a given group of cells `y` satisfying a donor-cellType-gene combination, the response object is given by `quantile(y, seq(from = 0.5 / m, to = 1 - 0.5 / m, length.out = m), type = 1)`.
 #' @param cisRange A positive integer (default `1e5`) specifying the range defining cis-SNPs around each gene's starting location.  cis-SNP range defined by absolute difference in `start` values between genes in `geneInfo` and SNPs in `snpInfo`, conditioned on same `chromosome` values.
 #'
-#' @import data.table
 #' @returns A nested list structure of distQTL p-values. First list layer splits by cell type group from `cellTypeGroups` input; next sub-layer splits by gene from gene columns of `expressionDataTable`; within each of these sub-layers is a vector of $\log(p)$ values form distQTL, individually testing each cis-SNP conditioned on the covariates specified in `covariateDataTable`.
 #' @export
 #'
 #' @examples 
+#' @import data.table
+#' @import fastfrechet
 distQTL = function(genotypeDataTable = NULL,
                    expressionDataTable = NULL,
                    covariateDataTable = NULL,
