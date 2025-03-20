@@ -72,9 +72,10 @@ distQTL = function(genotypeDataTable = NULL,
       
       for(k in seq_len(nSNPs)){
         
+        # k = 2
         # match the SNP:
         w = which(snpInfo$snpID == snpNames[k])
-        # k = 2
+        
         # Check the SNP is a cis-SNP for the given gene:
         if((geneInfo$chromosome[i] == snpInfo$chromosome[w]) && (abs(geneInfo$start[i] - snpInfo$start[w]) <= cisRange)){
           
