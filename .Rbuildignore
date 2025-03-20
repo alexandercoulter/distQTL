@@ -1,4 +1,4 @@
 ^README\.Rmd$
 ^.*\.Rproj$
 ^\.Rproj\.user$
-^testfile\.R$
+^scripts$
