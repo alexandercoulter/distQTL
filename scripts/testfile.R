@@ -15,8 +15,8 @@ library(distQTL)
 # Set parameters:
 set.seed(31)
 nDonors = 100
-nSNPs = 100
-nGenes = 50
+nSNPs = 50
+nGenes = 10
 nCells = 1000 * nDonors
 p = 8
 m = 100
