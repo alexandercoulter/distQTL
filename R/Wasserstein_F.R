@@ -27,7 +27,7 @@ Wasserstein_F = function(X,
   m = ncol(Y)
   p = ncol(X)
   
-  if(is.null(Q0)) Q0 = fastfrechet::frechetreg_univar2wass(X = X,
+  if(is.null(Q0)) Q0 = fastfrechet::frechetreg_univar2wass(X = X[ , -p],
                                                            Y = Y,
                                                            C_init = C_init,
                                                            lower = lower,
