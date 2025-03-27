@@ -64,6 +64,7 @@ distQTL = function(genotypeDataTable = NULL,
       # Extract gene expression information:
       Y = expressionDataTable[cellType %in% cellTypeGroups[[j]], as.list(quantile(.SD[[1]], mseq)), by = donorID, .SDcols = geneNames[i]]
       Y = as.matrix(Y[match(genotypeDataTable$donorID, donorID), -1])
+      Y = trimY(Y, lower = 0, upper = Inf)
       
       # Fit null model quantile functions and central quantile function:
       Q0 = fastfrechet::frechetreg_univar2wass(Xcov, Y, lower = 0, upper = Inf)$Qhat
