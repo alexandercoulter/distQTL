@@ -16,24 +16,24 @@ Wasserstein_F(
 )
 }
 \arguments{
-\item{X}{An $n \times p$ covariate matrix (with no intercept column), whose last column is the one being tested.}
+\item{X}{An \eqn{n \times p} covariate matrix (with no intercept column), whose last column is the one being tested.}
 
-\item{Y}{An $n \times m$ matrix row-wise containing quantile function response objects.}
+\item{Y}{An \eqn{n \times m} matrix row-wise containing quantile function response objects.}
 
 \item{lower}{A numeric scalar (default \code{-Inf}) setting the lower support box constraint.}
 
 \item{upper}{A numeric scalar (default \code{Inf}) setting the upper support box constraint.}
 
-\item{Q0}{An optional (i.e. default \code{NULL}) $n \times m$ matrix containing the fitted quantile functions from the null Fréchet regression model, i.e. the model removing the last column of \code{X}.}
+\item{Q0}{An optional (i.e. default \code{NULL}) \eqn{n \times m} matrix containing the fitted quantile functions from the null Fréchet regression model, i.e. the model removing the last column of \code{X}.}
 
-\item{Qm}{An optional (i.e. default \code{NULL}) $n \times m$ matrix containing the marginal Fréchet mean of the response quantile functions; is evaluated as \code{colMeans(Y)}.}
+\item{Qm}{An optional (i.e. default \code{NULL}) \eqn{n \times m} matrix containing the marginal Fréchet mean of the response quantile functions; is evaluated as \code{colMeans(Y)}.}
 
-\item{C_init}{An optional (i.e. default \code{NULL}) $n \times (m + 1)$ matrix containing the initial Lagrangian for the QP-problem associated with the Fréchet regression problem. Positive entries correspond to active constraints; zero values correspond to inactive constraints. \code{NULL} is equivalent to specifying \code{C_init = matrix(0, n, m + 1)}.}
+\item{C_init}{An optional (i.e. default \code{NULL}) \eqn{n \times (m + 1)} matrix containing the initial Lagrangian for the QP-problem associated with the Fréchet regression problem. Positive entries correspond to active constraints; zero values correspond to inactive constraints. \code{NULL} is equivalent to specifying \code{C_init = matrix(0, n, m + 1)}.}
 
-\item{log.p}{A boolean value (default \code{TRUE}) specifying whether the $\log(p)$-value, rather than $p$-value, should be returned from the partial F test.}
+\item{log.p}{A boolean value (default \code{TRUE}) specifying whether the \eqn{\log(p)}-value, rather than \eqn{p}-value, should be returned from the partial F test.}
 }
 \value{
-A list with F statistic, p-value ($\log(p)$ if specified in input), and F test degrees of freedom $df_1$ and $df_2$.
+A list with F statistic, p-value (\eqn{\log(p)} if specified in input), and F test degrees of freedom \eqn{df_1} and \eqn{df_2}.
 }
 \description{
 Wasserstein partial F-test for distribution responses.

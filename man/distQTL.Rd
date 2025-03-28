@@ -12,7 +12,9 @@ distQTL(
   geneInfo = NULL,
   snpInfo = NULL,
   m = 100,
-  cisRange = 1e+05
+  cisRange = 1e+05,
+  minCells = 10,
+  minExpr = 0.01
 )
 }
 \arguments{
@@ -31,9 +33,13 @@ distQTL(
 \item{m}{A positive integer (default \code{100}) containing the empirical distribution grid density, i.e. for a given group of cells \code{y} satisfying a donor-cellType-gene combination, the response object is given by \code{quantile(y, seq(from = 0.5 / m, to = 1 - 0.5 / m, length.out = m), type = 1)}.}
 
 \item{cisRange}{A positive integer (default \code{1e5}) specifying the range defining cis-SNPs around each gene's starting location.  cis-SNP range defined by absolute difference in \code{start} values between genes in \code{geneInfo} and SNPs in \code{snpInfo}, conditioned on same \code{chromosome} values.}
+
+\item{minCells}{A positive integer (default \code{10}) specifying the minimum number of cells a donor must have in order to be included in regression.  Evaluated per cell type group.}
+
+\item{minExpr}{A scalar between (0, 1] (default \code{0.01}) giving the minimum required proportion of cells, averaged across donors, that have positive gene expression.  For instance, if \code{minExpr = 0.10}, and there are 2 donors with 7\% and 11\% positive gene expression among their cells, respectively, then the average positive expression across donors is \eqn{(7 + 11)/2 = 9 \leq 10}\%.  This gene would then be considered "low expression", and excluded from distQTL calculations.}
 }
 \value{
-A nested list structure of distQTL p-values. First list layer splits by cell type group from \code{cellTypeGroups} input; next sub-layer splits by gene from gene columns of \code{expressionDataTable}; within each of these sub-layers is a vector of $\log(p)$ values form distQTL, individually testing each cis-SNP conditioned on the covariates specified in \code{covariateDataTable}.
+A nested list structure of distQTL p-values. First list layer splits by cell type group from \code{cellTypeGroups} input; next sub-layer splits by gene from gene columns of \code{expressionDataTable}; within each of these sub-layers is a vector of \eqn{\log(p)} values form distQTL, individually testing each cis-SNP conditioned on the covariates specified in \code{covariateDataTable}.
 }
 \description{
 distQTL
