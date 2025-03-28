@@ -15,6 +15,7 @@
 #' @export
 #' 
 #' @importFrom stats quantile
+#' @import data.table
 #'
 #' @examples
 #' # See vignette `intro-distQTL`.
