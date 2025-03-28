@@ -2,6 +2,7 @@
 
 export(Wasserstein_F)
 export(distQTL)
+export(trimY)
 import(data.table)
 import(fastfrechet)
 importFrom(Rcpp,sourceCpp)
