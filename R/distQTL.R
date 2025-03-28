@@ -8,6 +8,8 @@
 #' @param snpInfo A `data.table` object with one row per SNP, and `3` columns. One column must be labeled `snpID`, which contains unique SNP identifiers. One column must be labeled `chromosome`, which contains unique chromosome identifiers for the SNPs; the values should match those used in the corresponding `chromosome` column of the `geneInfo` input object. One column must be labeled `start`, which gives the starting base pair locations for the SNPs in the genome; the reference genome should match the one used in the corresponding `start` column in the `geneInfo` input object.
 #' @param m A positive integer (default `100`) containing the empirical distribution grid density, i.e. for a given group of cells `y` satisfying a donor-cellType-gene combination, the response object is given by `quantile(y, seq(from = 0.5 / m, to = 1 - 0.5 / m, length.out = m), type = 1)`.
 #' @param cisRange A positive integer (default `1e5`) specifying the range defining cis-SNPs around each gene's starting location.  cis-SNP range defined by absolute difference in `start` values between genes in `geneInfo` and SNPs in `snpInfo`, conditioned on same `chromosome` values.
+#' @param minCells A positive integer (default `10`) specifying the minimum number of cells a donor must have in order to be included in regression.  Evaluated per cell type group.
+#' @param minExpr A scalar between (0, 1] (default `0.01`) giving the minimum required proportion of cells, averaged across donors, that have positive gene expression.  For instance, if `minExpr = 0.10`, and there are 2 donors with 7% and 11% positive gene expression among their cells, respectively, then the average positive expression across donors is \eqn{(7 + 11)/2 = 9 \leq 10}%.  This gene would then be considered "low expression", and excluded from distQTL calculations.
 #'
 #' @returns A nested list structure of distQTL p-values. First list layer splits by cell type group from `cellTypeGroups` input; next sub-layer splits by gene from gene columns of `expressionDataTable`; within each of these sub-layers is a vector of $\log(p)$ values form distQTL, individually testing each cis-SNP conditioned on the covariates specified in `covariateDataTable`.
 #' @export
@@ -22,7 +24,9 @@ distQTL = function(genotypeDataTable = NULL,
                    geneInfo = NULL,
                    snpInfo = NULL,
                    m = 100,
-                   cisRange = 1e5){
+                   cisRange = 1e5,
+                   minCells = 10,
+                   minExpr = 0.01){
   
   # NULL checks:
   if(is.null(genotypeDataTable)) stop("SNP genotype data.table must be provided.")
@@ -53,16 +57,22 @@ distQTL = function(genotypeDataTable = NULL,
     
     # j = 1
     
+    # Filter out low-expression genes:
+    numerator = expressionDataTable[cellType %in% cellTypeGroups[[j]], lapply(.SD, function(x) if(length(x) == 0) 0 else mean(x > 0)), by = donorID, .SDcols = geneNames]
+    denominator = expressionDataTable[cellType %in% cellTypeGroups[[j]], lapply(.SD, function(x) length(x) >= minCells), by = donorID, .SDcols = geneNames]
+    lowExpr = (colSums(numerator[ , -1] * denominator[ , -1]) / colSums(denominator[ , -1])) < minExpr
+    keepGenes = geneNames[which(!lowExpr)]
+    
     # Initialize the j^th cell type group p-value list, and name the elements
     # with gene names:
-    pvalues[[j]] = vector(mode = "list", length = length(geneNames))
-    names(pvalues[[j]]) = geneNames
+    pvalues[[j]] = vector(mode = "list", length = length(keepGenes))
+    names(pvalues[[j]]) = keepGenes
     
-    for(i in seq_len(nGenes)){
+    for(i in seq_len(length(keepGenes))){
       
       # i = 1
       # Extract gene expression information:
-      Y = expressionDataTable[cellType %in% cellTypeGroups[[j]], as.list(quantile(.SD[[1]], mseq)), by = donorID, .SDcols = geneNames[i]]
+      Y = expressionDataTable[cellType %in% cellTypeGroups[[j]], as.list(quantile(.SD[[1]], mseq)), by = donorID, .SDcols = keepGenes[i]]
       Y = as.matrix(Y[match(genotypeDataTable$donorID, donorID), -1])
       Y = trimY(Y, lower = 0, upper = Inf)
       
