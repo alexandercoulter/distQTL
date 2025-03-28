@@ -8,9 +8,9 @@ distQTL(
   genotypeDataTable = NULL,
   expressionDataTable = NULL,
   covariateDataTable = NULL,
-  cellTypeGroups = NULL,
   geneInfo = NULL,
   snpInfo = NULL,
+  cellTypeGroups = NULL,
   m = 100,
   cisRange = 1e+05,
   minCells = 10,
@@ -24,11 +24,11 @@ distQTL(
 
 \item{covariateDataTable}{A \code{data.table} object with one row per dono, and \code{1 + nCovariates} columns, with precisely as many donors as \code{genotypeDataTable}; input will be reordered row-wise to match \code{genotypeDataTable}. One column must be labeled \code{donorID}, which contains unique donor IDs for the data set. The remaining columns should contain desired donor-level covariate vectors, such as demographic information, genotype PCAs, PEER factors, batch information, etc. These columns should contain numeric data only, or data which can be coerced to numeric. Any factor type (or equivalent) data should be expanded into \code{0/1} encoding prior to input. These columns need not have meaningful names.}
 
-\item{cellTypeGroups}{An optionally named list object, where each element is a character vector containing cell types desired to be grouped together. These cell types should match from the \code{cellType} column in the \code{expressionDataTable} input, but need not be exhaustive of those entries. The list entries' names will be used to label cell type group level outputs; we recommend the list entries' names are short and descriptive of the groups they correspond to, e.g. \code{cellTypeGroups = list(B_cells = c("..."), Monocytes = c("..."), ...)}.}
-
 \item{geneInfo}{A \code{data.table} object with one row per gene, and \code{3} columns. One column must be labeled \code{geneID}, which contains unique gene identifiers (e.g. gene names, or Ensembl IDs). One column must be labeled \code{chromosome}, which contains unique chromosome identifiers for the genes; the values should match those used in the corresponding \code{chromosome} column of the \code{snpInfo} input object. One column must be labeled \code{start}, which gives the starting base pair locations for the genes in the genome; the reference genome should match the one used in the corresponding \code{start} column in the \code{snpInfo} input object.}
 
 \item{snpInfo}{A \code{data.table} object with one row per SNP, and \code{3} columns. One column must be labeled \code{snpID}, which contains unique SNP identifiers. One column must be labeled \code{chromosome}, which contains unique chromosome identifiers for the SNPs; the values should match those used in the corresponding \code{chromosome} column of the \code{geneInfo} input object. One column must be labeled \code{start}, which gives the starting base pair locations for the SNPs in the genome; the reference genome should match the one used in the corresponding \code{start} column in the \code{geneInfo} input object.}
+
+\item{cellTypeGroups}{An optionally named list object, where each element is a character vector containing cell types desired to be grouped together. These cell types should match from the \code{cellType} column in the \code{expressionDataTable} input, but need not be exhaustive of those entries. The list entries' names will be used to label cell type group level outputs; we recommend the list entries' names are short and descriptive of the groups they correspond to, e.g. \code{cellTypeGroups = list(B_cells = c("..."), Monocytes = c("..."), ...)}.}
 
 \item{m}{A positive integer (default \code{100}) containing the empirical distribution grid density, i.e. for a given group of cells \code{y} satisfying a donor-cellType-gene combination, the response object is given by \code{quantile(y, seq(from = 0.5 / m, to = 1 - 0.5 / m, length.out = m), type = 1)}.}
 
