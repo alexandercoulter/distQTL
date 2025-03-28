@@ -87,19 +87,19 @@ data(package = "distQTL")
 Let's see the genontype data:
 
 ```{r show_genotype}
-genotypeDataTable
+genotypeDataTable[1:5, 1:5]
 ```
 
 Let's see the expression data:
 
 ```{r show_expression}
-expressionDataTable
+expressionDataTable[1:5, 1:5]
 ```
 
 Finally, let's see the covariate data:
 
 ```{r show_covariates}
-covariateDataTable
+covariateDataTable[1:5, ]
 ```
 
 The gene information `geneInfo` and snp information `snpInfo` contain gene and
@@ -148,11 +148,20 @@ output = distQTL(genotypeDataTable,
 runtime = difftime(Sys.time(), t0, units = "sec")
 ```
 
+This evaluated `{r print_time, echo = FALSE} length(unlist(output))` models in
+`{r print_time, echo = FALSE} round(runtime, 1)` seconds, at a model fit rate of
+approximately `{r print_time, echo = FALSE} round(runtime/length(unlist(output)), 3)`
+seconds per model.
+
 Let's look at results for one gene, in Monocytes:
 
 ```{r one_distQTL_gene_example}
 DF = data.frame("pval" = round(exp(output[[2]][[3]]), 6))
+
+# The gene:
 names(output[[2]])[3]
-DF[order(DF[ , 1]), , drop = FALSE]
+
+# Top selection of SNPs:
+head(DF[order(DF[ , 1]), , drop = FALSE])
 ```
 
