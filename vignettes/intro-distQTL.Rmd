@@ -149,8 +149,9 @@ runtime = difftime(Sys.time(), t0, units = "sec")
 ```
 
 This evaluated `{r print_time, echo = FALSE} length(unlist(output))` models in
-`{r print_time, echo = FALSE} round(runtime, 1)` seconds, at a model fit rate of
-approximately `{r print_time, echo = FALSE} round(runtime/length(unlist(output)), 3)`
+`{r print_time, echo = FALSE} round(runtime, 1)` seconds, for a model fit time
+of approximately
+`{r print_time, echo = FALSE} round(runtime/length(unlist(output)), 3)`
 seconds per model.
 
 Let's look at results for one gene, in Monocytes:
