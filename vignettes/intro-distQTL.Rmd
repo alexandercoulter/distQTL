@@ -93,13 +93,13 @@ genotypeDataTable[1:5, 1:5]
 Let's see the expression data:
 
 ```{r show_expression}
-expressionDataTable[1:5, 1:5]
+expressionDataTable[1:5, 1:4]
 ```
 
 Finally, let's see the covariate data:
 
 ```{r show_covariates}
-covariateDataTable[1:5, ]
+covariateDataTable[1:5, 1:7]
 ```
 
 The gene information `geneInfo` and snp information `snpInfo` contain gene and
@@ -148,10 +148,10 @@ output = distQTL(genotypeDataTable,
 runtime = difftime(Sys.time(), t0, units = "sec")
 ```
 
-This evaluated `{r print_time, echo = FALSE} length(unlist(output))` models in
-`{r print_time, echo = FALSE} round(runtime, 1)` seconds, for a model fit time
+This evaluated `r length(unlist(output))` models in
+`r round(runtime, 1)` seconds, for a model fit time
 of approximately
-`{r print_time, echo = FALSE} round(runtime/length(unlist(output)), 3)`
+`r round(runtime/length(unlist(output)), 3)`
 seconds per model.
 
 Let's look at results for one gene, in Monocytes:
