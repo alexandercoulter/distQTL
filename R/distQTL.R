@@ -74,25 +74,10 @@ distQTL = function(genotypeDataTable = NULL,
     pvalues[[j]] = vector(mode = "list", length = length(keepGenes))
     names(pvalues[[j]]) = keepGenes
     
+    t0 = Sys.time()
     for(i in seq_len(length(keepGenes))){
       
       # i = 1
-      # Extract gene expression information:
-      Y = expressionDataTable[cellType %in% cellTypeGroups[[j]], as.list(quantile(.SD[[1]], mseq)), by = donorID, .SDcols = keepGenes[i]]
-      Y = as.matrix(Y[match(genotypeDataTable$donorID, donorID), -1])
-      
-      # Remove rows of Xcov and Y corresponding to donors with low cell count:
-      wEnoughCells = which(denominator[[which(colnames(denominator) == keepGenes[i])]])
-      Xcov_i = Xcov[wEnoughCells, , drop = FALSE]
-      Y = Y[wEnoughCells, , drop = FALSE]
-      
-      # Trim columns from Y which are all equal to lower or upper:
-      Y = trimY(Y, lower = 0, upper = Inf)
-      
-      # Fit null model quantile functions and central quantile function:
-      Q0 = fastfrechet::frechetreg_univar2wass(Xcov_i, Y, lower = 0, upper = Inf)$Qhat
-      Qm = colMeans(Y)
-      
       # Find cis-SNPs:
       wGI = which(geneInfo$geneID == keepGenes[i])
       cisSNP = (snpInfo$chromosome == geneInfo$chromosome[wGI]) & (abs(geneInfo$start[wGI] - snpInfo$start) <= cisRange)
@@ -102,27 +87,47 @@ distQTL = function(genotypeDataTable = NULL,
       pvalues[[j]][[i]] = rep(NA, length(keepSNPs))
       names(pvalues[[j]][[i]]) = keepSNPs
       
-      t0 = Sys.time()
-      for(k in seq_len(length(keepSNPs))){
+      if(length(keepSNPs) > 0){
         
-        # Covariate matrix:
-        X = cbind(Xcov_i, genotypeDataTable[[which(colnames(genotypeDataTable) == keepSNPs[k])]][wEnoughCells])
+        # Extract gene expression information:
+        Y = expressionDataTable[cellType %in% cellTypeGroups[[j]], as.list(quantile(.SD[[1]], mseq)), by = donorID, .SDcols = keepGenes[i]]
+        Y = as.matrix(Y[match(genotypeDataTable$donorID, donorID), -1])
         
-        # Run Wasserstein F test:
-        wass = Wasserstein_F(X = X,
-                             Y = Y,
-                             lower = 0,
-                             upper = Inf,
-                             Q0 = Q0,
-                             Qm = Qm,
-                             C_init = NULL,
-                             log.p = TRUE)
-        pvalues[[j]][[i]][k] = wass$p_value
+        # Remove rows of Xcov and Y corresponding to donors with low cell count:
+        wEnoughCells = which(denominator[[which(colnames(denominator) == keepGenes[i])]])
+        Xcov_i = Xcov[wEnoughCells, , drop = FALSE]
+        Y = Y[wEnoughCells, , drop = FALSE]
+        
+        # Trim columns from Y which are all equal to lower or upper:
+        Y = trimY(Y, lower = 0, upper = Inf)
+        
+        # Fit null model quantile functions and central quantile function:
+        Q0 = fastfrechet::frechetreg_univar2wass(Xcov_i, Y, lower = 0, upper = Inf)$Qhat
+        Qm = colMeans(Y)
+        
+        # Loop over cis-SNPs:
+        for(k in seq_len(length(keepSNPs))){
+          
+          # Covariate matrix:
+          X = cbind(Xcov_i, genotypeDataTable[[which(colnames(genotypeDataTable) == keepSNPs[k])]][wEnoughCells])
+          
+          # Run Wasserstein F test:
+          wass = Wasserstein_F(X = X,
+                               Y = Y,
+                               lower = 0,
+                               upper = Inf,
+                               Q0 = Q0,
+                               Qm = Qm,
+                               C_init = NULL,
+                               log.p = TRUE)
+          pvalues[[j]][[i]][k] = wass$p_value
+          
+        }
         
       }
-      totalTime = totalTime + as.numeric(difftime(Sys.time(), t0, units = "sec"))
       
     }
+    totalTime = totalTime + as.numeric(difftime(Sys.time(), t0, units = "sec"))
     
   }
 
