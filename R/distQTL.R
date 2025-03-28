@@ -16,6 +16,7 @@
 #' 
 #' @importFrom stats quantile
 #' @import data.table
+#' @import utils
 #'
 #' @examples
 #' # See vignette `intro-distQTL`.
@@ -31,6 +32,8 @@ distQTL = function(genotypeDataTable = NULL,
                    cisRange = 1e5,
                    minCells = 10,
                    minExpr = 0.01){
+  
+  utils::globalVariables(c("errorMessage")) 
   
   totalTime = 0
   # NULL checks:
