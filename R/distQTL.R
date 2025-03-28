@@ -60,6 +60,11 @@ distQTL = function(genotypeDataTable = NULL,
     # Filter out low-expression genes:
     numerator = expressionDataTable[cellType %in% cellTypeGroups[[j]], lapply(.SD, function(x) if(length(x) == 0) 0 else mean(x > 0)), by = donorID, .SDcols = geneNames]
     denominator = expressionDataTable[cellType %in% cellTypeGroups[[j]], lapply(.SD, function(x) length(x) >= minCells), by = donorID, .SDcols = geneNames]
+    
+    # Order with respect to donorID:
+    numerator = numerator[match(genotypeDataTable$donorID, donorID), ]
+    denominator = denominator[match(genotypeDataTable$donorID, donorID), ]
+    
     lowExpr = (colSums(numerator[ , -1] * denominator[ , -1]) / colSums(denominator[ , -1])) < minExpr
     keepGenes = geneNames[which(!lowExpr)]
     
@@ -72,13 +77,19 @@ distQTL = function(genotypeDataTable = NULL,
       
       # i = 1
       # Extract gene expression information:
-      
       Y = expressionDataTable[cellType %in% cellTypeGroups[[j]], as.list(quantile(.SD[[1]], mseq)), by = donorID, .SDcols = keepGenes[i]]
       Y = as.matrix(Y[match(genotypeDataTable$donorID, donorID), -1])
+      
+      # Remove rows of Xcov and Y corresponding to donors with low cell count:
+      wEnoughCells = which(denominator[[which(colnames(denominator) == keepGenes[i])]])
+      Xcov_i = Xcov[wEnoughCells, , drop = FALSE]
+      Y = Y[wEnoughCells, , drop = FALSE]
+      
+      # Trim columns from Y which are all equal to lower or upper:
       Y = trimY(Y, lower = 0, upper = Inf)
       
       # Fit null model quantile functions and central quantile function:
-      Q0 = fastfrechet::frechetreg_univar2wass(Xcov, Y, lower = 0, upper = Inf)$Qhat
+      Q0 = fastfrechet::frechetreg_univar2wass(Xcov_i, Y, lower = 0, upper = Inf)$Qhat
       Qm = colMeans(Y)
       
       # Find cis-SNPs:
@@ -93,7 +104,7 @@ distQTL = function(genotypeDataTable = NULL,
       for(k in seq_len(length(keepSNPs))){
         
         # Covariate matrix:
-        X = cbind(Xcov, genotypeDataTable[[which(colnames(genotypeDataTable) == keepSNPs[k])]])
+        X = cbind(Xcov_i, genotypeDataTable[[which(colnames(genotypeDataTable) == keepSNPs[k])]][wEnoughCells])
         
         # Run Wasserstein F test:
         wass = Wasserstein_F(X = X,
