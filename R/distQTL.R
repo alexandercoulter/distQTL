@@ -38,7 +38,6 @@ distQTL = function(genotypeDataTable = NULL,
   cellType <- NULL
   donorID <- NULL
   
-  totalTime = 0
   # NULL checks:
   if(is.null(genotypeDataTable)) stop("SNP genotype data.table must be provided.")
   if(is.null(expressionDataTable)) stop("RNA expression data.table, [n cells] x [n genes], must be provided.")
@@ -59,22 +58,30 @@ distQTL = function(genotypeDataTable = NULL,
   
   # Extract covariate information:
   Xcov = as.matrix(covariateDataTable[ , -1])
+  XdonorID = covariateDataTable$donorID
+  
+  # Match genotypeDataTable row-wise to covariateDataTable:
+  genotypeDataTable = genotypeDataTable[match(XdonorID, donorID), ]
   
   # Initialize p-value list object, and name the elements:
   pvalues = vector(mode = "list", length = length(cellTypeGroups))
-  names(pvalues) = paste("group", seq_len(length(cellTypeGroups)), sep = "_")
+  names(pvalues) = if(!is.null(names(cellTypeGroups))) names(cellTypeGroups) else paste("group", seq_len(length(cellTypeGroups)), sep = "_")
   
   for(j in seq_len(nGroups)){
     
-    # j = 1
+    # j = 2
     
     # Filter out low-expression genes:
     numerator = expressionDataTable[cellType %in% cellTypeGroups[[j]], lapply(.SD, function(x) if(length(x) == 0) 0 else mean(x > 0)), by = donorID, .SDcols = geneNames]
     denominator = expressionDataTable[cellType %in% cellTypeGroups[[j]], lapply(.SD, function(x) length(x) >= minCells), by = donorID, .SDcols = geneNames]
     
-    # Order with respect to donorID:
-    numerator = numerator[match(genotypeDataTable$donorID, donorID), ]
-    denominator = denominator[match(genotypeDataTable$donorID, donorID), ]
+    # Extract only those donors that have cells in this cell type group:
+    Xcov_j = Xcov[XdonorID %in% numerator$donorID, ]
+    XdonorID_j = XdonorID[XdonorID %in% numerator$donorID]
+    
+    # Order with respect to XdonorID_j:
+    numerator = numerator[match(XdonorID_j, donorID), ]
+    denominator = denominator[match(XdonorID_j, donorID), ]
     
     lowExpr = (colSums(numerator[ , -1] * denominator[ , -1]) / colSums(denominator[ , -1])) < minExpr
     keepGenes = geneNames[which(!lowExpr)]
@@ -100,11 +107,11 @@ distQTL = function(genotypeDataTable = NULL,
         
         # Extract gene expression information:
         Y = expressionDataTable[cellType %in% cellTypeGroups[[j]], as.list(quantile(.SD[[1]], mseq)), by = donorID, .SDcols = keepGenes[i]]
-        Y = as.matrix(Y[match(genotypeDataTable$donorID, donorID), -1])
+        Y = as.matrix(Y[match(XdonorID_j, donorID), -1])
         
         # Remove rows of Xcov and Y corresponding to donors with low cell count:
         wEnoughCells = which(denominator[[which(colnames(denominator) == keepGenes[i])]])
-        Xcov_i = Xcov[wEnoughCells, , drop = FALSE]
+        Xcov_i = Xcov_j[wEnoughCells, , drop = FALSE]
         Y = Y[wEnoughCells, , drop = FALSE]
         
         # Trim columns from Y which are all equal to lower or upper:
