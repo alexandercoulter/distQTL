@@ -45,8 +45,10 @@ devtools::install_github("alexandercoulter/distQTL")
   * [Vignette]
 
 
-## Questions & Issues
-If you have any questions with the package, feel free to email the maintainer at coultera@tamu.edu. We will try our best to reply as soon as we can.
+## Community Guidelines, Questions, and Issues
+
+1.  If you have any questions with the package, feel free to email the maintainer at coultera@tamu.edu. We will try our best to reply as soon as we can.
+2.  Report issues or problems with the software using GitHub’s [issue tracker](https://github.com/alexandercoulter/distQTL/issues).
 
 
 ## Citation
