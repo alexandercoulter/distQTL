@@ -33,7 +33,9 @@ distQTL = function(genotypeDataTable = NULL,
                    minCells = 10,
                    minExpr = 0.01){
   
-  utils::globalVariables(c("errorMessage")) 
+  # Suppress incorrect parser "global variable" interpretation of data.table 
+  # syntax used in this script:
+  utils::globalVariables(c("cellType", "donorID")) 
   
   totalTime = 0
   # NULL checks:
