@@ -11,7 +11,7 @@
 #' @param minCells A positive integer (default `10`) specifying the minimum number of cells a donor must have in order to be included in regression.  Evaluated per cell type group.
 #' @param minExpr A scalar between (0, 1] (default `0.01`) giving the minimum required proportion of cells, averaged across donors, that have positive gene expression.  For instance, if `minExpr = 0.10`, and there are 2 donors with 7% and 11% positive gene expression among their cells, respectively, then the average positive expression across donors is \eqn{(7 + 11)/2 = 9 \leq 10}%.  This gene would then be considered "low expression", and excluded from distQTL calculations.
 #'
-#' @returns A nested list structure of distQTL p-values. First list layer splits by cell type group from `cellTypeGroups` input; next sub-layer splits by gene from gene columns of `expressionDataTable`; within each of these sub-layers is a vector of $\log(p)$ values form distQTL, individually testing each cis-SNP conditioned on the covariates specified in `covariateDataTable`.
+#' @returns A nested list structure of distQTL p-values. First list layer splits by cell type group from `cellTypeGroups` input; next sub-layer splits by gene from gene columns of `expressionDataTable`; within each of these sub-layers is a vector of \eqn{\log(p)} values form distQTL, individually testing each cis-SNP conditioned on the covariates specified in `covariateDataTable`.
 #' @export
 #'
 #' @examples 
