@@ -28,6 +28,7 @@ distQTL = function(genotypeDataTable = NULL,
                    minCells = 10,
                    minExpr = 0.01){
   
+  totalTime = 0
   # NULL checks:
   if(is.null(genotypeDataTable)) stop("SNP genotype data.table must be provided.")
   if(is.null(expressionDataTable)) stop("RNA expression data.table, [n cells] x [n genes], must be provided.")
@@ -101,6 +102,7 @@ distQTL = function(genotypeDataTable = NULL,
       pvalues[[j]][[i]] = rep(NA, length(keepSNPs))
       names(pvalues[[j]][[i]]) = keepSNPs
       
+      t0 = Sys.time()
       for(k in seq_len(length(keepSNPs))){
         
         # Covariate matrix:
@@ -118,11 +120,12 @@ distQTL = function(genotypeDataTable = NULL,
         pvalues[[j]][[i]][k] = wass$p_value
         
       }
+      totalTime = totalTime + as.numeric(difftime(Sys.time(), t0, units = "sec"))
       
     }
     
   }
 
-  return(pvalues)
+  return(list("output" = pvalues, "distQTL_time" = totalTime))
   
 }
