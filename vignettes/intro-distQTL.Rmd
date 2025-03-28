@@ -71,9 +71,88 @@ generally correspond to the small set of SNPs located near each respective gene.
 
 # Using `distQTL`
 
+## Loading (Part of) the OneK1K Data Set
+
+Part of the OneK1K data set has been included with the `distQTL` package,
+specifically expression data from a random selection of 20 genes, donor
+genotypes for their various cis-SNPs (defined as within a 200,000 base pair gene
+radius), and various supporting information which will be used by the `distQTL`
+function.  Loading the package data generates the data objects as exactly
+required by `distQTL`.
+
 ```{r load_example_OneK1K_Data}
 data(package = "distQTL")
+```
+
+Let's see the genontype data:
+
+```{r show_genotype}
+genotypeDataTable
+```
+
+Let's see the expression data:
+
+```{r show_expression}
+expressionDataTable
+```
+
+Finally, let's see the covariate data:
+
+```{r show_covariates}
+covariateDataTable
+```
+
+The gene information `geneInfo` and snp information `snpInfo` contain gene and
+SNP IDs (respectively), chromosomes, and genome sequence locations (defined as
+the start location in the chromosome sequence; for OneK1K, these are with
+respect to the **hg19** reference genome).
+
+The `cellTypeGroups` object is a list containing the names of the types of cells
+each individual measurement comes from.  The `cellTypeGroups` object included in
+the `distQTL` data is a two-part list object, the first containing B cell names:
+
+1. naive B cell,
+2. memory B cell,
+3. transitional stage B cell,
+
+and the second containing monocyte cell names
+
+1. CD14-positive monocyte,
+2. CD14-low, CD16-positive monocyte.
+
+Finally, the object `m` (equal to 200) gives the grid density to evaluate the
+empirical distribution objects, given as quantile functions evaluated in
+$(0, 1)$; the object `cisRange` (equal to 200,000) gives the range of base pair
+values from a gene inside which a SNP is considered a "cis-SNP"; the object
+`minCells` (equal to 10) gives the minimum number of cells a donor must have to
+be included in the model, evaluated on a cell type group basis; and the object
+`minExpr` gives the minimum average positive expression a gene must have, across
+donors, to have any models performed on it.
+
+## Fitting distQTL Models
+
+Distribution-based QTL-mapping is performed on this subset of the OneK1K below.
+
+```{r run_distQTL}
+t0 = Sys.time()
 output = distQTL(genotypeDataTable,
                  expressionDataTable,
-                 )
+                 covariateDataTable,
+                 geneInfo,
+                 snpInfo,
+                 cellTypeGroups,
+                 m,
+                 cisRange,
+                 minCells,
+                 minExpr)
+runtime = difftime(Sys.time(), t0, units = "sec")
 ```
+
+Let's look at results for one gene, in Monocytes:
+
+```{r one_distQTL_gene_example}
+DF = data.frame("pval" = round(exp(output[[2]][[3]]), 6))
+names(output[[2]])[3]
+DF[order(DF[ , 1]), , drop = FALSE]
+```
+
