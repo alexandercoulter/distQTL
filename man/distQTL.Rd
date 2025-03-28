@@ -44,3 +44,6 @@ A nested list structure of distQTL p-values. First list layer splits by cell typ
 \description{
 distQTL
 }
+\examples{
+See vignette `intro-distQTL`.
+}

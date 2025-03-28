@@ -38,3 +38,22 @@ A list with F statistic, p-value (\eqn{\log(p)} if specified in input), and F te
 \description{
 Wasserstein partial F-test for distribution responses.
 }
+\examples{
+# Generate `zinbinom` distributions:
+n <- 100 # number of samples - nrow(X) and nrow(Y).
+p <- 4   # number of covariates - ncol(X).
+m <- 100 # EQF grid density - ncol(Y).
+mseq <- seq(1 / (2 * m), 1 - 1 / (2 * m), length.out = m)
+
+set.seed(31)
+mydata <- fastfrechet::generate_zinbinom_qf(n = n, p = p, m = m)
+
+X <- mydata$X # (n x p) matrix of covariates
+Y <- mydata$Y # (n x m) matrix of EQFs, stored row-wise
+
+# Run Wasserstein F test on last covariate:
+output <- Wasserstein_F(X, Y, lower = 0, log.p = FALSE)
+
+# p-value is low:
+output$p_value
+}

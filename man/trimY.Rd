@@ -7,12 +7,37 @@
 trimY(Y, lower = -Inf, upper = Inf)
 }
 \arguments{
-\item{Y}{}
+\item{Y}{A matrix whose rows are monotone non-decreasing and obey \code{Y >= lower} and \code{Y <= upper}.}
 
-\item{lower}{}
+\item{lower}{A numeric scalar smaller than \code{Inf} (default \code{-Inf}) giving lower distribution support box constraint.  Must be strictly smaller than \code{upper}.}
 
-\item{upper}{}
+\item{upper}{A numeric scalar larger than \code{Inf} (default \code{-Inf}) giving upper distribution support box constraint.  Must be strictly larger than \code{lower}.}
+}
+\value{
+A column sub-matrix of \code{Y}, consisting of those columns not all equal to \code{lower} and not all equal to \code{upper}.
 }
 \description{
 trimY
+}
+\examples{
+set.seed(31)
+
+# Set number of rows, and quantile function grid density, respectively:
+n = 5
+m = 20
+
+# Quantile function grid support:
+mseq = seq(0.5 / m, 1 - 0.5 / m, length.out = m)
+
+# Generate random quantile functions:
+Y = t(replicate(n, qpois(mseq, rexp(1, 2))))
+
+# Show Y, which has some columns all zero, the lower bound for Poisson:
+print(Y)
+
+# Trim the Y matrix:
+Y_trim = trimY(Y, lower = 0)
+
+# Show trimmed Y, which now has no columns all equal to zero:
+print(Y_trim)
 }
