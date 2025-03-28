@@ -72,6 +72,7 @@ distQTL = function(genotypeDataTable = NULL,
       
       # i = 1
       # Extract gene expression information:
+      
       Y = expressionDataTable[cellType %in% cellTypeGroups[[j]], as.list(quantile(.SD[[1]], mseq)), by = donorID, .SDcols = keepGenes[i]]
       Y = as.matrix(Y[match(genotypeDataTable$donorID, donorID), -1])
       Y = trimY(Y, lower = 0, upper = Inf)
@@ -80,33 +81,30 @@ distQTL = function(genotypeDataTable = NULL,
       Q0 = fastfrechet::frechetreg_univar2wass(Xcov, Y, lower = 0, upper = Inf)$Qhat
       Qm = colMeans(Y)
       
-      pvalues[[j]][[i]] = rep(NA, ncol(genotypeDataTable) - 1)
-      names(pvalues[[j]][[i]]) = snpNames
+      # Find cis-SNPs:
+      wGI = which(geneInfo$geneID == keepGenes[i])
+      cisSNP = (snpInfo$chromosome == geneInfo$chromosome[wGI]) & (abs(geneInfo$start[wGI] - snpInfo$start) <= cisRange)
+      keepSNPs = snpNames[which(cisSNP)]
       
-      for(k in seq_len(nSNPs)){
+      # Initialize p-value storage:
+      pvalues[[j]][[i]] = rep(NA, length(keepSNPs))
+      names(pvalues[[j]][[i]]) = keepSNPs
+      
+      for(k in seq_len(length(keepSNPs))){
         
-        # k = 2
-        # match the SNP:
-        w = which(snpInfo$snpID == snpNames[k])
+        # Covariate matrix:
+        X = cbind(Xcov, genotypeDataTable[[which(colnames(genotypeDataTable) == keepSNPs[k])]])
         
-        # Check the SNP is a cis-SNP for the given gene:
-        if((geneInfo$chromosome[i] == snpInfo$chromosome[w]) && (abs(geneInfo$start[i] - snpInfo$start[w]) <= cisRange)){
-          
-          # Covariate matrix:
-          X = cbind(Xcov, genotypeDataTable[[k + 1]])
-          
-          # Run Wasserstein F test:
-          wass = Wasserstein_F(X = X,
-                               Y = Y,
-                               lower = 0,
-                               upper = Inf,
-                               Q0 = Q0,
-                               Qm = Qm,
-                               C_init = NULL,
-                               log.p = TRUE)
-          pvalues[[j]][[i]][k] = wass$p_value
-          
-        }
+        # Run Wasserstein F test:
+        wass = Wasserstein_F(X = X,
+                             Y = Y,
+                             lower = 0,
+                             upper = Inf,
+                             Q0 = Q0,
+                             Qm = Qm,
+                             C_init = NULL,
+                             log.p = TRUE)
+        pvalues[[j]][[i]][k] = wass$p_value
         
       }
       
