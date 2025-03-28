@@ -11,10 +11,28 @@ Alexander Coulter <coultera@tamu.edu>
 
 
 ## Description
-distQTL is a package for applying **dist**ribution-based **Q**uantitative **T**rait **L**ocus mapping using single-cell RNA sequence data.  distQTL takes cell-level expression data and SNP genotype data, and applies Fréchet regression for distribution responses with corresponding partial F-test inference methods.  This allows QTL mapping and characterization of distribution-wide effects.  distQTL sidesteps the donor level cell-cell correlation issue in single-cell RNA sequence data, and obtains fast and numerically stable inference results.  Unlike mixed effects approaches which fit a random intercept per donor, distQTL computation burden scales linearly with number of donors, and does not suffer convergence issues.
+distQTL is an `R` package for applying **dist**ribution-based **Q**uantitative
+**T**rait **L**ocus mapping using single-cell RNA sequence data.  distQTL takes
+cell-level expression data and SNP genotype data, and applies Fréchet regression
+for distribution responses with corresponding partial F-test inference methods. 
+This allows QTL mapping and characterization of distribution-wide effects.
+distQTL sidesteps the donor level cell-cell correlation issue in single-cell RNA
+sequence data, and obtains fast and numerically stable inference results. 
+Unlike mixed effects approaches which fit a random intercept per donor, distQTL
+computation burden scales linearly with number of donors, and does not suffer
+convergence issues.
 
 
 ## Installation
+
+To use `fastfrechet`, you need to install [`R`](https://cran.r-project.org/). To
+enhance your user experience, you may use some IDE for it
+(e.g. [`RStudio`](https://www.rstudio.com/)).
+
+The development version of
+[`distQTL`](https://github.com/alexandercoulter/distQTL) is available on GitHub.
+You can download it with the help of the `devtools` package in `R` as follow:
+
 ```r
 install.packages("devtools")
 install.packages("data.table")
