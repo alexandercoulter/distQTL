@@ -59,7 +59,21 @@ filtered out for some cell type groups due to low expression; gene level results
 generally correspond to the small set of SNPs located near each respective gene.
 
 
-# 
+# Inputs to `distQTL`
+
+## SNP Genotype, Gene Expression, Covariates, and Other Information
 
 
 
+## Other Inputs
+
+
+
+# Using `distQTL`
+
+```{r load_example_OneK1K_Data}
+data(package = "distQTL")
+output = distQTL(genotypeDataTable,
+                 expressionDataTable,
+                 )
+```
