@@ -13,6 +13,8 @@
 #'
 #' @returns A nested list structure of distQTL p-values. First list layer splits by cell type group from `cellTypeGroups` input; next sub-layer splits by gene from gene columns of `expressionDataTable`; within each of these sub-layers is a vector of \eqn{\log(p)} values form distQTL, individually testing each cis-SNP conditioned on the covariates specified in `covariateDataTable`.
 #' @export
+#' 
+#' @importFrom stats quantile
 #'
 #' @examples
 #' # See vignette `intro-distQTL`.

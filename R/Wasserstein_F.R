@@ -12,7 +12,7 @@
 #' @returns A list with F statistic, p-value (\eqn{\log(p)} if specified in input), and F test degrees of freedom \eqn{df_1} and \eqn{df_2}.
 #' @export
 #' 
-#' @importFrom stats pf quantile
+#' @importFrom stats pf
 #'
 #' @examples
 #' # Generate `zinbinom` distributions:
