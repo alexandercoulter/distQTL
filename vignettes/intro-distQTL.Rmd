@@ -17,3 +17,49 @@ knitr::opts_chunk$set(
 ```{r setup}
 library(distQTL)
 ```
+
+# Introduction
+
+This vignette demonstrates **dist**ribution-based **q**uantitative **t**rait
+**l**ocus mapping as implemented by the `R` package `distQTL`.  distQTL-mapping
+is performed by way of Fréchet regression for univariate distribution response
+objects, and partial $F$ tests designed for those settings.  The `R` package
+`distQTL` utilizes the `R` package `fastfrechet` as a Fréchet regression
+workhorse, and implements its own partial $F$ test in the function
+`Wasserstein_F`. The `R` package `fastfrechet` should be automatically
+installed as part of `distQTL`; its development version is currently available
+for download from GitHub
+[here](<https://github.com/alexandercoulter/fastfrechet>).
+
+`disTQTL` implements distQTL-mapping through the eponymous function `distQTL`
+(i.e. `distQTL::distQTL(...)`). The function expects a collection of
+`data.table` structure inputs, which contain
+
+1. single nucleotide polymorphism (SNP) genotype information for a set of
+donors;
+2. single cell RNA-sequence (scRNA-seq) expression data for a set of genes;
+3. fixed donor specific covariate vectors;
+4. cell-specific information, including donor ID label and cell type label; and
+5. gene/SNP information, including names/IDs, chromosome locations, and genotype
+start loci.
+
+This vignette illustrates how these input objects should be structured. Other
+inputs, such as donor/gene/SNP filtering specifications and desired cell type
+groupings, are also explained and illustrated.
+
+The main result of `distQTL` is a model p-value, testing the partial effect of a
+(cis-)SNP on gene expression given a set of fixed covariates. The full output
+object is a nested list structure. At the first list layer, results are split by
+the desired cell type groupings, e.g. "B cells" or "Monocytes". Each of these
+groups then is a list of `distQTL` results for each gene under consideration.
+Each gene's results consist of a vector of partial $F$ test p-values (presented
+as $\log(p)$ results by default), one for each (cis-)SNP tested. As genes can be
+differentiaally expressed across different cell types, some genes might be
+filtered out for some cell type groups due to low expression; gene level results
+generally correspond to the small set of SNPs located near each respective gene.
+
+
+# 
+
+
+
