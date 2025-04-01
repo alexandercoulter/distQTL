@@ -25,6 +25,9 @@ convergence issues.
 
 ## Installation
 
+As of April 1, 2025, distQTL passes R CMD checks on MacOS.  We will shortly
+expand functionality to Windows OS.
+
 To use `fastfrechet`, you need to install [`R`](https://cran.r-project.org/). To
 enhance your user experience, you may use some IDE for it
 (e.g. [`RStudio`](https://www.rstudio.com/)).
