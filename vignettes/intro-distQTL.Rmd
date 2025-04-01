@@ -263,7 +263,7 @@ seconds per model.
 Let's look at results for one gene, in Monocytes:
 
 ```{r one_distQTL_gene_example}
-DF = data.frame("pval" = round(exp(output[[2]][[3]]), 6))
+DF = data.frame("pval" = round(10^(output[[2]][[3]]), 6))
 
 # The gene:
 names(output[[2]])[3]
