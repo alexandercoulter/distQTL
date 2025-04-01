@@ -53,8 +53,8 @@ object is a nested list structure. At the first list layer, results are split by
 the desired cell type groupings, e.g. "B cells" or "Monocytes". Each of these
 groups then is a list of `distQTL` results for each gene under consideration.
 Each gene's results consist of a vector of partial $F$ test p-values (presented
-as $\log(p)$ results by default), one for each (cis-)SNP tested. As genes can be
-differentiaally expressed across different cell types, some genes might be
+as $\log_{10}(p)$ results by default), one for each (cis-)SNP tested. As genes
+can be differentially expressed across different cell types, some genes might be
 filtered out for some cell type groups due to low expression; gene level results
 generally correspond to the small set of SNPs located near each respective gene.
 
@@ -63,11 +63,118 @@ generally correspond to the small set of SNPs located near each respective gene.
 
 ## SNP Genotype, Gene Expression, Covariates, and Other Information
 
+The `distQTL` function uses `data.table` objects to allow easier in-place memory
+usage.  Denote the number of SNPs in the data set by `nSNPs`, the number of
+genes by `nGenes`, and the number of fixed covariates (except genotype) by
+`nCovariates`.  The SNP genotype, gene expression, and covariate information
+required to perform distQTL are provided in the first three inputs:
 
+1. `genotype`: a `data.table` object with one row per donor, and
+`1 + nSNPs` columns. One column must be labeled `donorID`, which contains unique
+donor IDs for the data set. The remaining columns must contain donor genotype
+coding per SNP - `0` for homozygous major/reference allele **A/A**, `1` for
+heterozygous genotype **A/a**, and `2` for homozygous minor/alternative allele
+**a/a**. These columns' names should match the values given in the `geneID`
+column in the `geneInfo` input object, described below.
+2. `geneExpression`: a `data.table` object with one row per cell, and
+`2 + nGenes` columns. One column must be labeled `donorID`, which contains the
+donor ID label per-cell, values matching from the `donorID` column in the
+`genotype` object. One column must be labeled `cellType`, which contains cell
+type label per-cell. The remaining columns must contain raw gene expression
+count measurements, e.g. values in `{0, 1, 2, ...}`. These columns' names should
+match the values given in the `geneID` column in the `geneInfo` input object,
+described below.
+3. `covariate`: a `data.table` object with one row per donor, and
+`1 + nCovariates` columns, with precisely as many donors as `genotype`; input
+will be reordered row-wise to match `genotype`. One column must be labeled
+`donorID`, which contains unique donor IDs for the data set. The remaining
+columns should contain desired donor-level covariate vectors, such as
+demographic information, genotype PCAs, PEER factors, batch information, etc.
+These columns should contain numeric data only, or data which can be coerced to
+numeric. Any factor type (or equivalent) data should be expanded into `0/1`
+encoding prior to input. These columns need not have meaningful names.
+
+Information about the genes and SNPs being used is provided in the next two
+input objects. The main purpose of these inputs is to provide a list of gene and
+SNP names to match to the columns of the previous objects, for the sake of
+output naming and linking genes to their cis-SNPs.
+
+1. `geneInfo`: a `data.table` object with one row per gene, and `3` columns. One
+column must be labeled `geneID`, which contains unique gene identifiers (e.g.
+gene names, or Ensembl IDs). One column must be labeled `chromosome`, which
+contains unique chromosome identifiers for the genes; the values should match
+those used in the corresponding `chromosome` column of the `snpInfo` input
+object, described below. One column must be labeled `start`, which gives the
+starting base pair locations for the genes in the genome; the reference genome
+should match the one used in the corresponding `start` column in the `snpInfo`
+input object.
+2. `snpInfo`: a `data.table` object with one row per SNP, and `3` columns. One
+column must be labeled `snpID`, which contains unique SNP identifiers. One
+column must be labeled `chromosome`, which contains unique chromosome
+identifiers for the SNPs; the values should match those used in the
+corresponding `chromosome` column of the `geneInfo` input object. One column
+must be labeled `start`, which gives the starting base pair locations for the
+SNPs in the genome; the reference genome should match the one used in the
+corresponding `start` column in the `geneInfo` input object.
+
+Gene and SNP `chromosome` labels should match in the below objects' columns in
+order to be tested together. However, these columns, and the `start` columns, do
+not in principal have to contain accurate information.  For instance, if you
+would like to test every gene-SNP combination, then you could do this by setting
+the `chromosome` columns all to the same number, and the `start` columns all to
+the same number, respectively.  If you want to test cis-SNPs, as defined by
+SNPs within a certain base pair radius of a gene start location within the same
+chromosome, then you should ensure the `chromosome` and `start` labels are
+accurate.
 
 ## Other Inputs
 
+Other parameters control the cell, gene, donor, and SNP filtering steps which
+distQTL performs.  Filtering can be done to remove genes with low expression,
+remove donors with low counts of cells, so on.  The extra inputs that `distQTL`
+takes are:
 
+1. `cellTypeGroups`: an optionally named list object, where each element is a
+character vector containing cell types desired to be grouped together. These
+cell types should match from the `cellType` column in the `geneExpression`
+input, but need not be exhaustive of those entries. The list entries' names will
+be used to label cell type group level outputs; we recommend the list entries'
+names are short and descriptive of the groups they correspond to, e.g.
+`cellTypeGroups = list(B_cells = c("..."), Monocytes = c("..."), ...)`.
+2. `m`: a positive integer (default `100`) containing the empirical distribution
+grid density.  For instance, for a given group of cells `y` satisfying a
+donor-cellType-gene combination, the response object is given by
+`quantile(y, seq(from = 0.5 / m, to = 1 - 0.5 / m, length.out = m), type = 1)`.
+3. `cisRange`: a positive integer (default `1e5`) specifying the range defining
+cis-SNPs around each gene's starting location.  cis-SNP range is defined by
+absolute difference in `start` values between genes in `geneInfo` and SNPs in
+`snpInfo`, conditioned on same `chromosome` values.  If a SNP does not have the
+same `chromosome` label as a gene, comparing the `snpInfo` and `geneInfo` input
+objects, then a model will not be fit for that gene-SNP pair.
+4. `minCells`: a positive integer (default `10`) specifying the minimum number
+of cells a donor must have in order to be included in regression.  This is
+evaluated on a "within cell type group" basis.
+5. `minExpr`: a scalar between $(0, 1]$ (default `0.01`) giving the minimum
+required proportion of cells, averaged across donors, that have positive gene
+expression.  For instance, if `minExpr = 0.10`, and there are 2 donors with 7%
+and 11% positive gene expression among their cells, respectively, then the
+average positive expression across donors is $(7 + 11)/2 = 9 \leq 10$%.  This
+gene would then be considered "low expression", and excluded from distQTL 
+calculations.
+
+In general, increasing `m` leads to longer computation time; asymptotically we
+approximate computation time to be quadratic in `m`.  Increasing `cisRange`
+results in more gene-SNP pairs being tested; it may be set to `+Inf` to test all
+gene-SNP pairs within a chromosome, but be warned this will likely greatly
+increase computation time and possibly cause memory issues depending on your
+machine. Increasing `minCells` will remove donors with lower cell counts. While
+this leads to a sample with higher donor-level certainty, this also reduces the
+overall sample size. Setting this parameter too high or too low can both hurt
+power, and we do not have practical guidelines for tuning it. Finally,
+increasing `minExpr` implements a more stringent positive expression threshold
+for a gene to have any distQTL models performed on it.  As in other regression
+contexts, genes with low expression can have lower signal, making detection
+challenging and making finite-sample results unstable and unreliable.
 
 # Using `distQTL`
 
@@ -87,19 +194,19 @@ data(package = "distQTL")
 Let's see the genontype data:
 
 ```{r show_genotype}
-genotypeDataTable[1:5, 1:5]
+genotype[1:5, 1:5]
 ```
 
 Let's see the expression data:
 
 ```{r show_expression}
-expressionDataTable[1:5, 1:4]
+expression[1:5, 1:4]
 ```
 
 Finally, let's see the covariate data:
 
 ```{r show_covariates}
-covariateDataTable[1:5, 1:7]
+covariate[1:5, 1:7]
 ```
 
 The gene information `geneInfo` and snp information `snpInfo` contain gene and
@@ -135,9 +242,9 @@ Distribution-based QTL-mapping is performed on this subset of the OneK1K below.
 
 ```{r run_distQTL}
 t0 = Sys.time()
-output = distQTL(genotypeDataTable,
-                 expressionDataTable,
-                 covariateDataTable,
+output = distQTL(genotype,
+                 geneExpression,
+                 covariate,
                  geneInfo,
                  snpInfo,
                  cellTypeGroups,
