@@ -41,9 +41,7 @@ devtools::install_github("alexandercoulter/distQTL")
 
 
 ## Demo code & Vignettes
-* distQTL
-  * [Vignette]
-
+* [distQTL introductory vignette](http://htmlpreview.github.io/?https://github.com/alexandercoulter/distQTL/blob/master/intro-distQTL.html) (.html file), with explanation and OneK1K subset example.
 
 ## Community Guidelines, Questions, and Issues
 
