@@ -200,7 +200,7 @@ genotype[1:5, 1:5]
 Let's see the expression data:
 
 ```{r show_expression}
-expression[1:5, 1:4]
+geneExpression[1:5, 1:4]
 ```
 
 Finally, let's see the covariate data:
@@ -222,19 +222,18 @@ the `distQTL` data is a two-part list object, the first containing B cell names:
 2. memory B cell,
 3. transitional stage B cell,
 
-and the second containing monocyte cell names
+and the second containing monocyte cell names:
 
 1. CD14-positive monocyte,
 2. CD14-low, CD16-positive monocyte.
 
-Finally, the object `m` (equal to 200) gives the grid density to evaluate the
-empirical distribution objects, given as quantile functions evaluated in
-$(0, 1)$; the object `cisRange` (equal to 200,000) gives the range of base pair
-values from a gene inside which a SNP is considered a "cis-SNP"; the object
-`minCells` (equal to 10) gives the minimum number of cells a donor must have to
-be included in the model, evaluated on a cell type group basis; and the object
-`minExpr` gives the minimum average positive expression a gene must have, across
-donors, to have any models performed on it.
+Finally, we define the other inputs which will be used in this example.
+```{r}
+m = 200
+cisRange = 2e5
+minCells = 10
+minExpr = 0.01
+```
 
 ## Fitting distQTL Models
 
@@ -244,7 +243,7 @@ Distribution-based QTL-mapping is performed on this subset of the OneK1K below.
 t0 = Sys.time()
 output = distQTL(genotype,
                  geneExpression,
-                 covariate,
+                 covariates,
                  geneInfo,
                  snpInfo,
                  cellTypeGroups,
