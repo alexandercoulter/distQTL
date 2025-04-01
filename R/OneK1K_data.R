@@ -1,41 +1,89 @@
-#' OneK1K Data Subset
-#'
-#' These data sets contain a subset of the gene expression and SNP genotype
-#' information from the OneK1K PBMC data set.  Included is a random selection
-#' of 20 genes and each of their cis-SNPs (i.e. within 200 kpb), along with
-#' auxiliary gene and SNP information like labels/names, and chromosome
-#' locations.  Each object is a ready-to-use input for the distQTL function.
-#'
-#' `genotype` and `geneExpression` are data.table objects which contain SNP
-#' genotype and library size corrected gene expression, respectively. The first
-#' 1/2 columns (again, respectively) contain donor ID; and donor ID and cell
-#' type labels.  Other columns have SNP or gene names; see `distQTL`
-#' documentation for description of structure, or `intro-distQTL` vignette for
-#' header displays of these exact objects.  `covariates` is a data.table object
-#' with various demographic and other fixed effects covariates, such as two
-#' orthogonal polynomial columns of donor age, binary donor sex labels, and six
-#' principal component columns from the full (unprovided) genotype matrix. 
-#' `geneInfo` and `snpInfo` are data.table objects which tabulate gene/SNP
-#' names/labels, and chromosome locations.  Location entries in these objects
-#' are matched and compared to each other for the purpose of identifying 
-#' gene-SNP pairs that distQTL model fitting will be performed on; name/label
-#' information is matched to the column names of the `geneExpression` and
-#' `genotype` objects.  Finally, `cellTypeGroups` is a list object containing
-#' the cell type names composing the "B cell" and "Monocyte" groups, which are
-#' fit separately by distQTL.
+#' OneK1K genotype data
 #' 
-#' @format Except for `cellTypeGroups`, which is a list, all objects are
-#' data.table objects (requiring the `data.table` package).
-#' @examples
-#' genotype
-#' geneExpression
-#' covariates
-#' geneInfo
-#' snpInfo
-#' cellTypeGroups
-"genotype"
-"geneExpression"
-"covariates"
-"geneInfo"
-"snpInfo"
-"cellTypeGroups"
+#' @docType data
+#' @name genotype
+#' @usage data(genotype)
+#' @format A data.table with 961 rows and 2015 columns:
+#' \describe{
+#'   \item{donorID}{Vector of anonymized OneK1K donor ID labels.}
+#'   \item{other columns}{Donor genotype data (0/1/2) for 2014 different SNPs, with SNP names as column names.}
+#' }
+#' @author Alexander Coulter \email{coultera@@tamu.edu}
+#' @references url{https://explore.data.humancellatlas.org/projects/f2078d5f-2e7d-4844-8552-f7c41a231e52}
+NULL
+
+#' OneK1K gene expression data
+#' 
+#' @docType data
+#' @name geneExpression
+#' @usage data(geneExpression)
+#' @format A data.table with 144,813 rows and 22 columns:
+#' \describe{
+#'   \item{donorID}{Vector of anonymized OneK1K donor ID labels, one per cell.}
+#'   \item{cellType}{Vector of cell type labels, one per cell.}
+#'   \item{other columns}{Donor library size corrected gene expression data for 20 different genes, with gene Ensembl IDs as column names.}
+#' }
+#' @author Alexander Coulter \email{coultera@@tamu.edu}
+#' @references url{https://explore.data.humancellatlas.org/projects/f2078d5f-2e7d-4844-8552-f7c41a231e52}
+NULL
+
+#' OneK1K covariate data
+#' 
+#' @docType data
+#' @name covariates
+#' @usage data(covariates)
+#' @format A data.table with 961 rows and 10 columns:
+#' \describe{
+#'   \item{donorID}{Vector of anonymized OneK1K donor ID labels, one per cell.}
+#'   \item{age}{Vector of orthogonal polylnomial (first degree) of donor ages.}
+#'   \item{age2}{Vector of orthogonal polylnomial (second degree) of donor ages.}
+#'   \item{sex}{Vector of binary donor sex class labels (1/2).}
+#'   \item{PC_1 through PC_6}{Vectors of first 6 leading genotype principal components.}
+#' }
+#' @author Alexander Coulter \email{coultera@@tamu.edu}
+#' @references url{https://explore.data.humancellatlas.org/projects/f2078d5f-2e7d-4844-8552-f7c41a231e52}
+NULL
+
+#' OneK1K gene information
+#' 
+#' @docType data
+#' @name geneInfo
+#' @usage data(geneInfo)
+#' @format A data.table with 20 rows and 3 columns:
+#' \describe{
+#'   \item{geneID}{Vector of gene Ensembl IDs.}
+#'   \item{chromosome}{Vector of chromosome IDs (1-22, character).}
+#'   \item{start}{Vector of genome sequence start locations (within-chromosome), relative to hg19 reference genome.}
+#' }
+#' @author Alexander Coulter \email{coultera@@tamu.edu}
+#' @references url{https://explore.data.humancellatlas.org/projects/f2078d5f-2e7d-4844-8552-f7c41a231e52}
+NULL
+
+#' OneK1K SNP information
+#' 
+#' @docType data
+#' @name snpInfo
+#' @usage data(snpInfo)
+#' @format A data.table with 2014 rows and 3 columns:
+#' \describe{
+#'   \item{snpID}{Vector of SNP names as provided from OneK1K data pull.}
+#'   \item{chromosome}{Vector of chromosome IDs (1-22, character).}
+#'   \item{start}{Vector of genome sequence start locations (within-chromosome), relative to hg19 reference genome.}
+#' }
+#' @author Alexander Coulter \email{coultera@@tamu.edu}
+#' @references url{https://explore.data.humancellatlas.org/projects/f2078d5f-2e7d-4844-8552-f7c41a231e52}
+NULL
+
+#' OneK1K cell type groups
+#' 
+#' @docType data
+#' @name cellTypeGroups
+#' @usage data(cellTypeGroups)
+#' @format A named list with two entries:
+#' \describe{
+#'   \item{B}{Vector of B cell type names ("naive B cell", "memory B cell", and "transitional stage B cell").}
+#'   \item{Mono}{Vector of monocyte type names ("CD14-positive monocyte", and "CD14-low, CD16-positive monocyte").}
+#' }
+#' @author Alexander Coulter \email{coultera@@tamu.edu}
+#' @references url{https://explore.data.humancellatlas.org/projects/f2078d5f-2e7d-4844-8552-f7c41a231e52}
+NULL
