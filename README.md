@@ -39,9 +39,14 @@ install.packages("data.table")
 devtools::install_github("alexandercoulter/distQTL")
 ```
 
+To build vignettes upon install, use
+```r
+devtools::install_github("alexandercoulter/distQTL", build_vignettes = TRUE)
+```
 
-## Demo code & Vignettes
-* [distQTL introductory vignette](http://htmlpreview.github.io/?https://github.com/alexandercoulter/distQTL/blob/master/intro-distQTL.html) (.html file), with explanation and OneK1K subset example.
+
+## Demo Code & Vignettes
+* [intro-distQTL vignette](https://alexandercoulter.github.io/distQTL/intro-distQTL.html) (loads .html file), with explanation and OneK1K subset example.
 
 ## Community Guidelines, Questions, and Issues
 
