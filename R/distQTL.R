@@ -2,7 +2,7 @@
 #'
 #' @param genotype A `data.table` object with one row per donor, and `1 + nSNPs` columns. One column must be labeled `donorID`, which contains unique donor IDs for the data set. The remaining columns must contain donor genotype coding per SNP - `0` for homozygous major allele `(AA)`, `1` for heterozygous genotype `(Aa)`, and `2` for homozygous minor allele `(aa)`. These columns' names should match the values given in the `snpID` column in the `snpInfo` input object.
 #' @param geneExpression A `data.table` object with one row per cell, and `2 + nGenes` columns. One column must be labeled `donorID`, which contains the donor ID label per-cell, values matching from the `donorID` column. One column must be labeled `cellType`, which contains cell type label per-cell. The remaining columns must contain raw gene expression count measurements, e.g. values in `{0, 1, 2, ...}`. Sparse vector data types, e.g. from `Matrix::sparseVector`, are permitted in these columns. These columns' names should match the values given in the `geneID` column in the `geneInfo` input object.
-#' @param covariate A `data.table` object with one row per donor, and `1 + nCovariates` columns, with precisely as many donors as `genotype`; input will be reordered row-wise to match `genotype`. One column must be labeled `donorID`, which contains unique donor IDs for the data set. The remaining columns should contain desired donor-level covariate vectors, such as demographic information, genotype PCAs, PEER factors, batch information, etc. These columns should contain numeric data only, or data which can be coerced to numeric. Any factor type (or equivalent) data should be expanded into `0/1` encoding prior to input. These columns need not have meaningful names.
+#' @param covariates A `data.table` object with one row per donor, and `1 + nCovariates` columns, with precisely as many donors as `genotype`; input will be reordered row-wise to match `genotype`. One column must be labeled `donorID`, which contains unique donor IDs for the data set. The remaining columns should contain desired donor-level covariate vectors, such as demographic information, genotype PCAs, PEER factors, batch information, etc. These columns should contain numeric data only, or data which can be coerced to numeric. Any factor type (or equivalent) data should be expanded into `0/1` encoding prior to input. These columns need not have meaningful names.
 #' @param geneInfo A `data.table` object with one row per gene, and `3` columns. One column must be labeled `geneID`, which contains unique gene identifiers (e.g. gene names, or Ensembl IDs). One column must be labeled `chromosome`, which contains unique chromosome identifiers for the genes; the values should match those used in the corresponding `chromosome` column of the `snpInfo` input object. One column must be labeled `start`, which gives the starting base pair locations for the genes in the genome; the reference genome should match the one used in the corresponding `start` column in the `snpInfo` input object.
 #' @param snpInfo A `data.table` object with one row per SNP, and `3` columns. One column must be labeled `snpID`, which contains unique SNP identifiers. One column must be labeled `chromosome`, which contains unique chromosome identifiers for the SNPs; the values should match those used in the corresponding `chromosome` column of the `geneInfo` input object. One column must be labeled `start`, which gives the starting base pair locations for the SNPs in the genome; the reference genome should match the one used in the corresponding `start` column in the `geneInfo` input object.
 #' @param cellTypeGroups An optionally named list object, where each element is a character vector containing cell types desired to be grouped together. These cell types should match from the `cellType` column in the `geneExpression` input, but need not be exhaustive of those entries. The list entries' names will be used to label cell type group level outputs; we recommend the list entries' names are short and descriptive of the groups they correspond to, e.g. `cellTypeGroups = list(B_cells = c("..."), Monocytes = c("..."), ...)`.
@@ -11,7 +11,7 @@
 #' @param minCells A positive integer (default `10`) specifying the minimum number of cells a donor must have in order to be included in regression.  Evaluated per cell type group.
 #' @param minExpr A scalar between \eqn{(0, 1]} (default `0.01`) giving the minimum required proportion of cells, averaged across donors, that have positive gene expression.  For instance, if `minExpr = 0.10`, and there are 2 donors with 7% and 11% positive gene expression among their cells, respectively, then the average positive expression across donors is \eqn{(7 + 11)/2 = 9 \leq 10}%.  This gene would then be considered "low expression", and excluded from distQTL calculations.
 #'
-#' @returns A nested list structure of distQTL p-values. First list layer splits by cell type group from `cellTypeGroups` input; next sub-layer splits by gene from gene columns of `geneExpression`; within each of these sub-layers is a vector of \eqn{\log_{10}(p)} values form distQTL, individually testing each cis-SNP conditioned on the covariates specified in `covariate`.
+#' @returns A nested list structure of distQTL p-values. First list layer splits by cell type group from `cellTypeGroups` input; next sub-layer splits by gene from gene columns of `geneExpression`; within each of these sub-layers is a vector of \eqn{\log_{10}(p)} values form distQTL, individually testing each cis-SNP conditioned on the covariates specified in `covariates`.
 #' @export
 #' 
 #' @importFrom stats quantile
@@ -24,7 +24,7 @@
 #' @import fastfrechet
 distQTL = function(genotype = NULL,
                    geneExpression = NULL,
-                   covariate = NULL,
+                   covariates = NULL,
                    geneInfo = NULL,
                    snpInfo = NULL,
                    cellTypeGroups = NULL,
@@ -41,7 +41,7 @@ distQTL = function(genotype = NULL,
   # NULL checks:
   if(is.null(genotype)) stop("SNP genotype data.table must be provided.")
   if(is.null(geneExpression)) stop("RNA expression data.table, [n cells] x [n genes], must be provided.")
-  if(is.null(covariate)) stop("Covariate matrix, [n donors] x [n covariates], must be provided.")
+  if(is.null(covariates)) stop("Covariate matrix, [n donors] x [n covariates], must be provided.")
   if(is.null(cellTypeGroups)) print("Cell type labels vector not provided; defaulting to aggregating regardless of cell type.")
   
   # Extract dimensions:
@@ -57,10 +57,10 @@ distQTL = function(genotype = NULL,
   snpNames = colnames(genotype)[-1]
   
   # Extract covariate information:
-  Xcov = as.matrix(covariate[ , -1])
-  XdonorID = covariate$donorID
+  Xcov = as.matrix(covariates[ , -1])
+  XdonorID = covariates$donorID
   
-  # Match genotype row-wise to covariate:
+  # Match genotype row-wise to covariates:
   genotype = genotype[match(XdonorID, donorID), ]
   
   # Initialize p-value list object, and name the elements:
