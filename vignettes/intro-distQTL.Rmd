@@ -206,7 +206,7 @@ geneExpression[1:5, 1:4]
 Finally, let's see the covariate data:
 
 ```{r show_covariates}
-covariate[1:5, 1:7]
+covariates[1:5, 1:7]
 ```
 
 The gene information `geneInfo` and snp information `snpInfo` contain gene and
