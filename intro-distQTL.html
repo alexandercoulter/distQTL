@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>intro-distQTL</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">intro-distQTL</h1>
+
+
+
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(distQTL)</span></code></pre></div>
+<div id="introduction" class="section level1">
+<h1>Introduction</h1>
+<p>This vignette demonstrates <strong>dist</strong>ribution-based
+<strong>q</strong>uantitative <strong>t</strong>rait
+<strong>l</strong>ocus mapping as implemented by the <code>R</code>
+package <code>distQTL</code>. distQTL-mapping is performed by way of
+Fréchet regression for univariate distribution response objects, and
+partial <span class="math inline">\(F\)</span> tests designed for those
+settings. The <code>R</code> package <code>distQTL</code> utilizes the
+<code>R</code> package <code>fastfrechet</code> as a Fréchet regression
+workhorse, and implements its own partial <span class="math inline">\(F\)</span> test in the function
+<code>Wasserstein_F</code>. The <code>R</code> package
+<code>fastfrechet</code> should be automatically installed as part of
+<code>distQTL</code>; its development version is currently available for
+download from GitHub <a href="https://github.com/alexandercoulter/fastfrechet">here</a>.</p>
+<p><code>disTQTL</code> implements distQTL-mapping through the eponymous
+function <code>distQTL</code> (i.e. <code>distQTL::distQTL(...)</code>).
+The function expects a collection of <code>data.table</code> structure
+inputs, which contain</p>
+<ol style="list-style-type: decimal">
+<li>single nucleotide polymorphism (SNP) genotype information for a set
+of donors;</li>
+<li>single cell RNA-sequence (scRNA-seq) expression data for a set of
+genes;</li>
+<li>fixed donor specific covariate vectors;</li>
+<li>cell-specific information, including donor ID label and cell type
+label; and</li>
+<li>gene/SNP information, including names/IDs, chromosome locations, and
+genotype start loci.</li>
+</ol>
+<p>This vignette illustrates how these input objects should be
+structured. Other inputs, such as donor/gene/SNP filtering
+specifications and desired cell type groupings, are also explained and
+illustrated.</p>
+<p>The main result of <code>distQTL</code> is a model p-value, testing
+the partial effect of a (cis-)SNP on gene expression given a set of
+fixed covariates. The full output object is a nested list structure. At
+the first list layer, results are split by the desired cell type
+groupings, e.g. “B cells” or “Monocytes”. Each of these groups then is a
+list of <code>distQTL</code> results for each gene under consideration.
+Each gene’s results consist of a vector of partial <span class="math inline">\(F\)</span> test p-values (presented as <span class="math inline">\(\log_{10}(p)\)</span> results by default), one for
+each (cis-)SNP tested. As genes can be differentially expressed across
+different cell types, some genes might be filtered out for some cell
+type groups due to low expression; gene level results generally
+correspond to the small set of SNPs located near each respective
+gene.</p>
+</div>
+<div id="inputs-to-distqtl" class="section level1">
+<h1>Inputs to <code>distQTL</code></h1>
+<div id="snp-genotype-gene-expression-covariates-and-other-information" class="section level2">
+<h2>SNP Genotype, Gene Expression, Covariates, and Other
+Information</h2>
+<p>The <code>distQTL</code> function uses <code>data.table</code>
+objects to allow easier in-place memory usage. Denote the number of SNPs
+in the data set by <code>nSNPs</code>, the number of genes by
+<code>nGenes</code>, and the number of fixed covariates (except
+genotype) by <code>nCovariates</code>. The SNP genotype, gene
+expression, and covariate information required to perform distQTL are
+provided in the first three inputs:</p>
+<ol style="list-style-type: decimal">
+<li><code>genotype</code>: a <code>data.table</code> object with one row
+per donor, and <code>1 + nSNPs</code> columns. One column must be
+labeled <code>donorID</code>, which contains unique donor IDs for the
+data set. The remaining columns must contain donor genotype coding per
+SNP - <code>0</code> for homozygous major/reference allele
+<strong>A/A</strong>, <code>1</code> for heterozygous genotype
+<strong>A/a</strong>, and <code>2</code> for homozygous
+minor/alternative allele <strong>a/a</strong>. These columns’ names
+should match the values given in the <code>geneID</code> column in the
+<code>geneInfo</code> input object, described below.</li>
+<li><code>geneExpression</code>: a <code>data.table</code> object with
+one row per cell, and <code>2 + nGenes</code> columns. One column must
+be labeled <code>donorID</code>, which contains the donor ID label
+per-cell, values matching from the <code>donorID</code> column in the
+<code>genotype</code> object. One column must be labeled
+<code>cellType</code>, which contains cell type label per-cell. The
+remaining columns must contain raw gene expression count measurements,
+e.g. values in <code>{0, 1, 2, ...}</code>. These columns’ names should
+match the values given in the <code>geneID</code> column in the
+<code>geneInfo</code> input object, described below.</li>
+<li><code>covariates</code>: a <code>data.table</code> object with one
+row per donor, and <code>1 + nCovariates</code> columns, with precisely
+as many donors as <code>genotype</code>; input will be reordered
+row-wise to match <code>genotype</code>. One column must be labeled
+<code>donorID</code>, which contains unique donor IDs for the data set.
+The remaining columns should contain desired donor-level covariate
+vectors, such as demographic information, genotype PCAs, PEER factors,
+batch information, etc. These columns should contain numeric data only,
+or data which can be coerced to numeric. Any factor type (or equivalent)
+data should be expanded into <code>0/1</code> encoding prior to input.
+These columns need not have meaningful names.</li>
+</ol>
+<p>Information about the genes and SNPs being used is provided in the
+next two input objects. The main purpose of these inputs is to provide a
+list of gene and SNP names to match to the columns of the previous
+objects, for the sake of output naming and linking genes to their
+cis-SNPs.</p>
+<ol style="list-style-type: decimal">
+<li><code>geneInfo</code>: a <code>data.table</code> object with one row
+per gene, and <code>3</code> columns. One column must be labeled
+<code>geneID</code>, which contains unique gene identifiers (e.g. gene
+names, or Ensembl IDs). One column must be labeled
+<code>chromosome</code>, which contains unique chromosome identifiers
+for the genes; the values should match those used in the corresponding
+<code>chromosome</code> column of the <code>snpInfo</code> input object,
+described below. One column must be labeled <code>start</code>, which
+gives the starting base pair locations for the genes in the genome; the
+reference genome should match the one used in the corresponding
+<code>start</code> column in the <code>snpInfo</code> input object.</li>
+<li><code>snpInfo</code>: a <code>data.table</code> object with one row
+per SNP, and <code>3</code> columns. One column must be labeled
+<code>snpID</code>, which contains unique SNP identifiers. One column
+must be labeled <code>chromosome</code>, which contains unique
+chromosome identifiers for the SNPs; the values should match those used
+in the corresponding <code>chromosome</code> column of the
+<code>geneInfo</code> input object. One column must be labeled
+<code>start</code>, which gives the starting base pair locations for the
+SNPs in the genome; the reference genome should match the one used in
+the corresponding <code>start</code> column in the <code>geneInfo</code>
+input object.</li>
+</ol>
+<p>Gene and SNP <code>chromosome</code> labels should match in the below
+objects’ columns in order to be tested together. However, these columns,
+and the <code>start</code> columns, do not in principal have to contain
+accurate information. For instance, if you would like to test every
+gene-SNP combination, then you could do this by setting the
+<code>chromosome</code> columns all to the same number, and the
+<code>start</code> columns all to the same number, respectively. If you
+want to test cis-SNPs, as defined by SNPs within a certain base pair
+radius of a gene start location within the same chromosome, then you
+should ensure the <code>chromosome</code> and <code>start</code> labels
+are accurate.</p>
+</div>
+<div id="other-inputs" class="section level2">
+<h2>Other Inputs</h2>
+<p>Other parameters control the cell, gene, donor, and SNP filtering
+steps which distQTL performs. Filtering can be done to remove genes with
+low expression, remove donors with low counts of cells, so on. The extra
+inputs that <code>distQTL</code> takes are:</p>
+<ol style="list-style-type: decimal">
+<li><code>cellTypeGroups</code>: an optionally named list object, where
+each element is a character vector containing cell types desired to be
+grouped together. These cell types should match from the
+<code>cellType</code> column in the <code>geneExpression</code> input,
+but need not be exhaustive of those entries. The list entries’ names
+will be used to label cell type group level outputs; we recommend the
+list entries’ names are short and descriptive of the groups they
+correspond to, e.g.
+<code>cellTypeGroups = list(B_cells = c(&quot;...&quot;), Monocytes = c(&quot;...&quot;), ...)</code>.</li>
+<li><code>m</code>: a positive integer (default <code>100</code>)
+containing the empirical distribution grid density. For instance, for a
+given group of cells <code>y</code> satisfying a donor-cellType-gene
+combination, the response object is given by
+<code>quantile(y, seq(from = 0.5 / m, to = 1 - 0.5 / m, length.out = m), type = 1)</code>.</li>
+<li><code>cisRange</code>: a positive integer (default <code>1e5</code>)
+specifying the range defining cis-SNPs around each gene’s starting
+location. cis-SNP range is defined by absolute difference in
+<code>start</code> values between genes in <code>geneInfo</code> and
+SNPs in <code>snpInfo</code>, conditioned on same
+<code>chromosome</code> values. If a SNP does not have the same
+<code>chromosome</code> label as a gene, comparing the
+<code>snpInfo</code> and <code>geneInfo</code> input objects, then a
+model will not be fit for that gene-SNP pair.</li>
+<li><code>minCells</code>: a positive integer (default <code>10</code>)
+specifying the minimum number of cells a donor must have in order to be
+included in regression. This is evaluated on a “within cell type group”
+basis.</li>
+<li><code>minExpr</code>: a scalar between <span class="math inline">\((0, 1]\)</span> (default <code>0.01</code>) giving
+the minimum required proportion of cells, averaged across donors, that
+have positive gene expression. For instance, if
+<code>minExpr = 0.10</code>, and there are 2 donors with 7% and 11%
+positive gene expression among their cells, respectively, then the
+average positive expression across donors is <span class="math inline">\((7 + 11)/2 = 9 \leq 10\)</span>%. This gene would
+then be considered “low expression”, and excluded from distQTL
+calculations.</li>
+</ol>
+<p>In general, increasing <code>m</code> leads to longer computation
+time; asymptotically we approximate computation time to be quadratic in
+<code>m</code>. Increasing <code>cisRange</code> results in more
+gene-SNP pairs being tested; it may be set to <code>+Inf</code> to test
+all gene-SNP pairs within a chromosome, but be warned this will likely
+greatly increase computation time and possibly cause memory issues
+depending on your machine. Increasing <code>minCells</code> will remove
+donors with lower cell counts. While this leads to a sample with higher
+donor-level certainty, this also reduces the overall sample size.
+Setting this parameter too high or too low can both hurt power, and we
+do not have practical guidelines for tuning it. Finally, increasing
+<code>minExpr</code> implements a more stringent positive expression
+threshold for a gene to have any distQTL models performed on it. As in
+other regression contexts, genes with low expression can have lower
+signal, making detection challenging and making finite-sample results
+unstable and unreliable.</p>
+</div>
+</div>
+<div id="using-distqtl" class="section level1">
+<h1>Using <code>distQTL</code></h1>
+<div id="loading-part-of-the-onek1k-data-set" class="section level2">
+<h2>Loading (Part of) the OneK1K Data Set</h2>
+<p>Part of the OneK1K data set has been included with the
+<code>distQTL</code> package, specifically expression data from a random
+selection of 20 genes, donor genotypes for their various cis-SNPs
+(defined as within a 200,000 base pair gene radius), and various
+supporting information which will be used by the <code>distQTL</code>
+function. Loading the package data generates the data objects as exactly
+required by <code>distQTL</code>.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">data</span>(<span class="at">package =</span> <span class="st">&quot;distQTL&quot;</span>)</span></code></pre></div>
+<p>Let’s see the genontype data:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>genotype[<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>]</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="co">#&gt;    donorID GSA-rs62119598 GSA-rs76662040 rs35863918 GSA-rs78580830</span></span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="co">#&gt;     &lt;fctr&gt;          &lt;int&gt;          &lt;int&gt;      &lt;int&gt;          &lt;int&gt;</span></span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="co">#&gt; 1:     1_1              0              1          0              0</span></span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="co">#&gt; 2:     2_2              0              0          0              0</span></span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a><span class="co">#&gt; 3:     3_3              0              0          0              0</span></span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a><span class="co">#&gt; 4:     4_4              0              0          0              0</span></span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a><span class="co">#&gt; 5:     6_6              1              0          0              0</span></span></code></pre></div>
+<p>Let’s see the expression data:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>geneExpression[<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>]</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="co">#&gt;    donorID                  cellType ENSG00000079432 ENSG00000100422</span></span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="co">#&gt;     &lt;fctr&gt;                    &lt;fctr&gt;           &lt;int&gt;           &lt;int&gt;</span></span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="co">#&gt; 1: 686_687              naive B cell               0               0</span></span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="co">#&gt; 2: 692_693             memory B cell               0               0</span></span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a><span class="co">#&gt; 3: 692_693 transitional stage B cell               0               0</span></span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a><span class="co">#&gt; 4: 690_691             memory B cell               0               0</span></span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a><span class="co">#&gt; 5: 682_683              naive B cell               0               0</span></span></code></pre></div>
+<p>Finally, let’s see the covariate data:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>covariates[<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">7</span>]</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="co">#&gt;    donorID          age        age2   sex       PC_1        PC_2       PC_3</span></span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="co">#&gt;     &lt;char&gt;        &lt;num&gt;       &lt;num&gt; &lt;num&gt;      &lt;num&gt;       &lt;num&gt;      &lt;num&gt;</span></span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="co">#&gt; 1:     1_1  0.002037722 -0.02523903     1  0.8328050  0.05130451  0.4790027</span></span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="co">#&gt; 2:     2_2 -0.031252544 -0.02203353     1 -1.4685475 -1.56720938 -0.4987103</span></span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="co">#&gt; 3:     3_3 -0.021461289 -0.02887455     1  0.5190437 -1.31829774 -0.6093993</span></span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="co">#&gt; 4:     4_4 -0.031252544 -0.02203353     1  0.6246254  1.10665899 -0.6088034</span></span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="co">#&gt; 5:     6_6  0.029453235  0.01478500     1 -0.3387446  0.61225647  1.0366904</span></span></code></pre></div>
+<p>The gene information <code>geneInfo</code> and snp information
+<code>snpInfo</code> contain gene and SNP IDs (respectively),
+chromosomes, and genome sequence locations (defined as the start
+location in the chromosome sequence; for OneK1K, these are with respect
+to the <strong>hg19</strong> reference genome).</p>
+<p>The <code>cellTypeGroups</code> object is a list containing the names
+of the types of cells each individual measurement comes from. The
+<code>cellTypeGroups</code> object included in the <code>distQTL</code>
+data is a two-part list object, the first containing B cell names:</p>
+<ol style="list-style-type: decimal">
+<li>naive B cell,</li>
+<li>memory B cell,</li>
+<li>transitional stage B cell,</li>
+</ol>
+<p>and the second containing monocyte cell names:</p>
+<ol style="list-style-type: decimal">
+<li>CD14-positive monocyte,</li>
+<li>CD14-low, CD16-positive monocyte.</li>
+</ol>
+<p>Finally, we define the other inputs which will be used in this
+example.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>m <span class="ot">=</span> <span class="dv">200</span></span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>cisRange <span class="ot">=</span> <span class="fl">2e5</span></span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>minCells <span class="ot">=</span> <span class="dv">10</span></span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>minExpr <span class="ot">=</span> <span class="fl">0.01</span></span></code></pre></div>
+</div>
+<div id="fitting-distqtl-models" class="section level2">
+<h2>Fitting distQTL Models</h2>
+<p>Distribution-based QTL-mapping is performed on this subset of the
+OneK1K below.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>t0 <span class="ot">=</span> <span class="fu">Sys.time</span>()</span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>output <span class="ot">=</span> <span class="fu">distQTL</span>(genotype,</span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>                 geneExpression,</span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>                 covariates,</span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>                 geneInfo,</span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a>                 snpInfo,</span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a>                 cellTypeGroups,</span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a>                 m,</span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a>                 cisRange,</span>
+<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a>                 minCells,</span>
+<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a>                 minExpr)</span>
+<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a>runtime <span class="ot">=</span> <span class="fu">difftime</span>(<span class="fu">Sys.time</span>(), t0, <span class="at">units =</span> <span class="st">&quot;sec&quot;</span>)</span></code></pre></div>
+<p>This evaluated 3699 models in 194.4 seconds, for a model fit time of
+approximately 0.053 seconds per model.</p>
+<p>Let’s look at results for one gene, in Monocytes:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>DF <span class="ot">=</span> <span class="fu">data.frame</span>(<span class="st">&quot;pval&quot;</span> <span class="ot">=</span> <span class="fu">round</span>(<span class="dv">10</span><span class="sc">^</span>(output[[<span class="dv">2</span>]][[<span class="dv">3</span>]]), <span class="dv">6</span>))</span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="co"># The gene:</span></span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a><span class="fu">names</span>(output[[<span class="dv">2</span>]])[<span class="dv">3</span>]</span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a><span class="co">#&gt; [1] &quot;ENSG00000107897&quot;</span></span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a></span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a><span class="co"># Top selection of SNPs:</span></span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a><span class="fu">head</span>(DF[<span class="fu">order</span>(DF[ , <span class="dv">1</span>]), , <span class="at">drop =</span> <span class="cn">FALSE</span>])</span>
+<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a><span class="co">#&gt;                    pval</span></span>
+<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a><span class="co">#&gt; GSA-rs79028187 0.000001</span></span>
+<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a><span class="co">#&gt; GSA-rs12245098 0.029021</span></span>
+<span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a><span class="co">#&gt; GSA-rs2429499  0.031396</span></span>
+<span id="cb8-13"><a href="#cb8-13" tabindex="-1"></a><span class="co">#&gt; rs7908050      0.040590</span></span>
+<span id="cb8-14"><a href="#cb8-14" tabindex="-1"></a><span class="co">#&gt; rs651134       0.049764</span></span>
+<span id="cb8-15"><a href="#cb8-15" tabindex="-1"></a><span class="co">#&gt; GSA-rs612898   0.049764</span></span></code></pre></div>
+</div>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
