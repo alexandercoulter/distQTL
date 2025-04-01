@@ -84,7 +84,7 @@ type label per-cell. The remaining columns must contain raw gene expression
 count measurements, e.g. values in `{0, 1, 2, ...}`. These columns' names should
 match the values given in the `geneID` column in the `geneInfo` input object,
 described below.
-3. `covariate`: a `data.table` object with one row per donor, and
+3. `covariates`: a `data.table` object with one row per donor, and
 `1 + nCovariates` columns, with precisely as many donors as `genotype`; input
 will be reordered row-wise to match `genotype`. One column must be labeled
 `donorID`, which contains unique donor IDs for the data set. The remaining
