@@ -18,7 +18,7 @@ data(genotype)
 OneK1K genotype data
 }
 \references{
-url{https://explore.data.humancellatlas.org/projects/f2078d5f-2e7d-4844-8552-f7c41a231e52}
+\url{https://explore.data.humancellatlas.org/projects/f2078d5f-2e7d-4844-8552-f7c41a231e52}
 }
 \author{
 Alexander Coulter \email{coultera@tamu.edu}

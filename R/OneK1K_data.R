@@ -9,7 +9,7 @@
 #'   \item{other columns}{Donor genotype data (0/1/2) for 2014 different SNPs, with SNP names as column names.}
 #' }
 #' @author Alexander Coulter \email{coultera@@tamu.edu}
-#' @references url{https://explore.data.humancellatlas.org/projects/f2078d5f-2e7d-4844-8552-f7c41a231e52}
+#' @references \url{https://explore.data.humancellatlas.org/projects/f2078d5f-2e7d-4844-8552-f7c41a231e52}
 NULL
 
 #' OneK1K gene expression data
@@ -24,7 +24,7 @@ NULL
 #'   \item{other columns}{Donor library size corrected gene expression data for 20 different genes, with gene Ensembl IDs as column names.}
 #' }
 #' @author Alexander Coulter \email{coultera@@tamu.edu}
-#' @references url{https://explore.data.humancellatlas.org/projects/f2078d5f-2e7d-4844-8552-f7c41a231e52}
+#' @references \url{https://explore.data.humancellatlas.org/projects/f2078d5f-2e7d-4844-8552-f7c41a231e52}
 NULL
 
 #' OneK1K covariate data
@@ -41,7 +41,7 @@ NULL
 #'   \item{PC_1 through PC_6}{Vectors of first 6 leading genotype principal components.}
 #' }
 #' @author Alexander Coulter \email{coultera@@tamu.edu}
-#' @references url{https://explore.data.humancellatlas.org/projects/f2078d5f-2e7d-4844-8552-f7c41a231e52}
+#' @references \url{https://explore.data.humancellatlas.org/projects/f2078d5f-2e7d-4844-8552-f7c41a231e52}
 NULL
 
 #' OneK1K gene information
@@ -56,7 +56,7 @@ NULL
 #'   \item{start}{Vector of genome sequence start locations (within-chromosome), relative to hg19 reference genome.}
 #' }
 #' @author Alexander Coulter \email{coultera@@tamu.edu}
-#' @references url{https://explore.data.humancellatlas.org/projects/f2078d5f-2e7d-4844-8552-f7c41a231e52}
+#' @references \url{https://explore.data.humancellatlas.org/projects/f2078d5f-2e7d-4844-8552-f7c41a231e52}
 NULL
 
 #' OneK1K SNP information
@@ -71,7 +71,7 @@ NULL
 #'   \item{start}{Vector of genome sequence start locations (within-chromosome), relative to hg19 reference genome.}
 #' }
 #' @author Alexander Coulter \email{coultera@@tamu.edu}
-#' @references url{https://explore.data.humancellatlas.org/projects/f2078d5f-2e7d-4844-8552-f7c41a231e52}
+#' @references \url{https://explore.data.humancellatlas.org/projects/f2078d5f-2e7d-4844-8552-f7c41a231e52}
 NULL
 
 #' OneK1K cell type groups
@@ -85,5 +85,5 @@ NULL
 #'   \item{Mono}{Vector of monocyte type names ("CD14-positive monocyte", and "CD14-low, CD16-positive monocyte").}
 #' }
 #' @author Alexander Coulter \email{coultera@@tamu.edu}
-#' @references url{https://explore.data.humancellatlas.org/projects/f2078d5f-2e7d-4844-8552-f7c41a231e52}
+#' @references \url{https://explore.data.humancellatlas.org/projects/f2078d5f-2e7d-4844-8552-f7c41a231e52}
 NULL
