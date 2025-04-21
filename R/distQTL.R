@@ -17,6 +17,7 @@
 #' @importFrom stats quantile
 #' @import data.table
 #' @import utils
+#' @import progress
 #'
 #' @examples
 #' # See vignette `intro-distQTL`.
@@ -32,7 +33,7 @@ distQTL = function(genotype = NULL,
                    cisRange = 1e5,
                    minCells = 10,
                    minExpr = 0.01,
-                   numPermutations = 1){
+                   nPermutations = 1){
   
   # Create "fake" global variables to trick parser that cannot properly
   # interpret data.table syntax:
@@ -70,7 +71,7 @@ distQTL = function(genotype = NULL,
   
   for(j in seq_len(nGroups)){
     
-    # j = 2
+    # j = 4
     
     # Filter out low-expression genes:
     numerator = geneExpression[cellType %in% cellTypeGroups[[j]], lapply(.SD, function(x) if(length(x) == 0) 0 else mean(x > 0)), by = donorID, .SDcols = geneNames]
@@ -101,10 +102,18 @@ distQTL = function(genotype = NULL,
       keepSNPs = snpNames[which(cisSNP)]
       
       # Initialize p-value storage:
-      pvalues[[j]][[i]] = matrix(NA, nrow = length(keepSNPs), ncol = 1 + numPermutations + sign(numPermutations))
+      pvalues[[j]][[i]] = matrix(NA, nrow = length(keepSNPs), ncol = 1 + nPermutations + sign(nPermutations))
       rownames(pvalues[[j]][[i]]) = keepSNPs
       
+      # Make progress bar:
+      pb = progress_bar$new(total = length(keepSNPs),
+                            format = "Working on :current / :total genes for cell group :cell...",
+                            show_after = 0)
+      
       if(length(keepSNPs) > 0){
+        
+        # Update progress bar:
+        pb$tick(tokens = list(cell = names(pvalues)[j]))
         
         # Extract gene expression information:
         Y = geneExpression[cellType %in% cellTypeGroups[[j]], as.list(quantile(.SD[[1]], mseq)), by = donorID, .SDcols = keepGenes[i]]
@@ -127,6 +136,8 @@ distQTL = function(genotype = NULL,
         # Loop over cis-SNPs to calculate raw p-values:
         for(k in seq_len(length(keepSNPs))){
           
+          pb$tick(tokens = list(i = i, kG = length(keepGenes), cell = names(pvalues)[j]))
+          
           # Covariate matrix:
           X = cbind(Xcov_i, genotype[[which(colnames(genotype) == keepSNPs[k])]][wEnoughCells])
           
@@ -143,8 +154,8 @@ distQTL = function(genotype = NULL,
           
         }
         
-        # Loop over numPermutations to calculate p-values under permutation:
-        for(p in seq_len(numPermutations)){
+        # Loop over nPermutations to calculate p-values under permutation:
+        for(p in seq_len(nPermutations)){
           
           # permute indices:
           permute_indices = sample(nrow(Y))
@@ -185,24 +196,28 @@ distQTL = function(genotype = NULL,
   }
   
   # Perform p-value correction:
-  if(numPermutations > 0){
+  if(nPermutations > 0){
     
     # Get raw p-values and p-values under permutation:
-    rawPvalues = sapply(pvalues, function(a) sapply(a, function(b) b[ , 1]))
-    permPvalues = sapply(pvalues, function(a) sapply(a, function(b) b[ , -c(1, ncol(b))]))
+    rawPvalues = unlist(sapply(pvalues, function(a) sapply(a, function(b) b[ , 1])))
+    permPvalues = unlist(sapply(pvalues, function(a) sapply(a, function(b) b[ , -c(1, ncol(b))])))
     
-    # Perform the correction:
-    correctedPvalues = p_correction(pa = rawPvalues, p0 = permPvalues, log10 = TRUE)
-    
-    # Remove unnecessary vectors:
-    rm(rawPvalues, nullPvalues)
-    
-    # Unlist p-value results and place corrected versions into NA slots:
-    unlistPvalues = unlist(pvalues)
-    unlistPvalues[is.na(unlistPvalues)] = correctedPvalues
-    
-    # Re-combine:
-    pvalues = relist(unlistPvalues, pvalues)
+    if(!(is.null(rawPvalues) || is.null(permPvalues))){
+      
+      # Perform the correction:
+      correctedPvalues = p_correction(pa = rawPvalues, p0 = permPvalues, log10p = TRUE)
+      
+      # Remove unnecessary vectors:
+      rm(rawPvalues, permPvalues)
+      
+      # Unlist p-value results and place corrected versions into NA slots:
+      unlistPvalues = unlist(pvalues)
+      unlistPvalues[is.na(unlistPvalues)] = correctedPvalues
+      
+      # Re-combine:
+      pvalues = relist(unlistPvalues, pvalues)
+      
+    }
 
   }
   
