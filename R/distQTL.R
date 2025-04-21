@@ -104,7 +104,7 @@ distQTL = function(genotype = NULL,
       # Initialize p-value storage:
       pvalues[[j]][[i]] = matrix(NA, nrow = length(keepSNPs), ncol = 1 + nPermutations + sign(nPermutations))
       
-      # Add column names to p-value matrix:
+      # Add column, row names to p-value matrix:
       colnames(pvalues[[j]][[i]])[1] = "raw_log10p"
       if(nPermutations > 0){
         
@@ -112,7 +112,6 @@ distQTL = function(genotype = NULL,
         colnames(pvalues[[j]][[i]])[-c(1, ncol(pvalues[[j]][[i]]))] = paste("permute", seq_len(nPermutations), "log10p", sep = "_")
         
       }
-      colnames(pvalues[[j]][[i]])[] = "raw_log10p"
       rownames(pvalues[[j]][[i]]) = keepSNPs
       
       # Make progress bar:
