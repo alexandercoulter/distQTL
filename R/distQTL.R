@@ -71,7 +71,7 @@ distQTL = function(genotype = NULL,
   
   for(j in seq_len(nGroups)){
     
-    # j = 4
+    # j = 1
     
     # Filter out low-expression genes:
     numerator = geneExpression[cellType %in% cellTypeGroups[[j]], lapply(.SD, function(x) if(length(x) == 0) 0 else mean(x > 0)), by = donorID, .SDcols = geneNames]
@@ -105,13 +105,13 @@ distQTL = function(genotype = NULL,
       pvalues[[j]][[i]] = matrix(NA, nrow = length(keepSNPs), ncol = 1 + nPermutations + sign(nPermutations))
       
       # Add column, row names to p-value matrix:
-      colnames(pvalues[[j]][[i]])[1] = "raw_log10p"
       if(nPermutations > 0){
         
-        colnames(pvalues[[j]][[i]])[ncol(pvalues[[j]][[i]])] = "corrected_log10p"
-        colnames(pvalues[[j]][[i]])[-c(1, ncol(pvalues[[j]][[i]]))] = paste("permute", seq_len(nPermutations), "log10p", sep = "_")
-        
-      }
+        colnames(pvalues[[j]][[i]]) = c("raw_log10p",
+                                        paste("permute", seq_len(nPermutations), "log10p", sep = "_"),
+                                        "corrected_log10p")
+
+      } else colnames(pvalues[[j]][[i]]) = "raw_log10p"
       rownames(pvalues[[j]][[i]]) = keepSNPs
       
       # Make progress bar:
