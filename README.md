@@ -25,7 +25,10 @@ convergence issues.
 
 ## Installation
 
-To use `fastfrechet`, you need to install [`R`](https://cran.r-project.org/). To
+As of April 1, 2025, distQTL passes R CMD checks on MacOS.  We will shortly
+expand functionality to Windows OS.
+
+To use `distQTL`, you need to install [`R`](https://cran.r-project.org/). To
 enhance your user experience, you may use some IDE for it
 (e.g. [`RStudio`](https://www.rstudio.com/)).
 
@@ -39,11 +42,14 @@ install.packages("data.table")
 devtools::install_github("alexandercoulter/distQTL")
 ```
 
+To build vignettes upon install, use
+```r
+devtools::install_github("alexandercoulter/distQTL", build_vignettes = TRUE)
+```
 
-## Demo code & Vignettes
-* distQTL
-  * [Vignette]
 
+## Demo Code & Vignettes
+* [intro-distQTL vignette](https://alexandercoulter.github.io/distQTL/intro-distQTL.html) (loads .html file), with explanation and OneK1K subset example.
 
 ## Community Guidelines, Questions, and Issues
 
