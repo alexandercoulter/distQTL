@@ -11,6 +11,19 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
+// p_correction
+arma::colvec p_correction(const arma::colvec& pa, const arma::colvec& p0, const bool& log10p);
+RcppExport SEXP _distQTL_p_correction(SEXP paSEXP, SEXP p0SEXP, SEXP log10pSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::colvec& >::type pa(paSEXP);
+    Rcpp::traits::input_parameter< const arma::colvec& >::type p0(p0SEXP);
+    Rcpp::traits::input_parameter< const bool& >::type log10p(log10pSEXP);
+    rcpp_result_gen = Rcpp::wrap(p_correction(pa, p0, log10p));
+    return rcpp_result_gen;
+END_RCPP
+}
 // scaleX_cpp
 arma::mat scaleX_cpp(const arma::mat& X, const double& tol);
 RcppExport SEXP _distQTL_scaleX_cpp(SEXP XSEXP, SEXP tolSEXP) {
@@ -25,6 +38,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_distQTL_p_correction", (DL_FUNC) &_distQTL_p_correction, 3},
     {"_distQTL_scaleX_cpp", (DL_FUNC) &_distQTL_scaleX_cpp, 2},
     {NULL, NULL, 0}
 };

@@ -6,7 +6,7 @@ using namespace Rcpp;
 // [[Rcpp::export]]
 arma::colvec p_correction(const arma::colvec& pa,
                           const arma::colvec& p0,
-                          const bool& log10 = true){
+                          const bool& log10p = true){
   
   arma::uvec s = arma::sort_index(pa);
   arma::colvec pa_sort = pa(s);
@@ -30,14 +30,18 @@ arma::colvec p_correction(const arma::colvec& pa,
   pc = pc / p0.n_rows;
   
   // Put into log10-scale if log10 = true:
-  if(log10){
+  arma::uvec w_smaller;
+  if(log10p){
     
-    pc = log10(pc);
+    pc = arma::log10(pc);
+    // Find where the raw p-values are smaller than 1 / (# of permuted p-values):
+    w_smaller = arma::find(pa < log10(1.0 / p0.n_rows));
+    
+  } else {
+    
+    w_smaller = arma::find(pa < (1.0 / p0.n_rows));
     
   }
-  
-  // Find where the raw p-values are smaller than 1 / (# of permuted p-values):
-  arma:uvec w_smaller = arma::find(pa < 1 / p0.n_rows);
   
   // At those locations, we replace the corrected p-values with the raw:
   pc(w_smaller) = pa(w_smaller);
