@@ -115,9 +115,9 @@ distQTL = function(genotype = NULL,
       rownames(pvalues[[j]][[i]]) = keepSNPs
       
       # Make progress bar:
-      pb = progress_bar$new(total = length(keepSNPs),
-                            format = "Working on :current / :total genes for cell group :cell...",
-                            show_after = 0)
+      pb = progress::progress_bar$new(total = length(keepSNPs),
+                                      format = "Working on :current / :total genes for cell group :cell...",
+                                      show_after = 0)
       
       if(length(keepSNPs) > 0){
         
@@ -144,8 +144,6 @@ distQTL = function(genotype = NULL,
         
         # Loop over cis-SNPs to calculate raw p-values:
         for(k in seq_len(length(keepSNPs))){
-          
-          pb$tick(tokens = list(i = i, kG = length(keepGenes), cell = names(pvalues)[j]))
           
           # Covariate matrix:
           X = cbind(Xcov_i, genotype[[which(colnames(genotype) == keepSNPs[k])]][wEnoughCells])
