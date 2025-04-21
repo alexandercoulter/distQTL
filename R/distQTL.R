@@ -93,7 +93,15 @@ distQTL = function(genotype = NULL,
     pvalues[[j]] = vector(mode = "list", length = length(keepGenes))
     names(pvalues[[j]]) = keepGenes
     
+    # Make progress bar:
+    pb = progress::progress_bar$new(total = length(keepGenes),
+                                    format = "Working on :current / :total genes for cell group :cell...",
+                                    show_after = 0)
+    
     for(i in seq_len(length(keepGenes))){
+      
+      # Update progress bar:
+      pb$tick(tokens = list(cell = names(pvalues)[j]))
       
       # i = 1
       # Find cis-SNPs:
@@ -114,15 +122,7 @@ distQTL = function(genotype = NULL,
       } else colnames(pvalues[[j]][[i]]) = "raw_log10p"
       rownames(pvalues[[j]][[i]]) = keepSNPs
       
-      # Make progress bar:
-      pb = progress::progress_bar$new(total = length(keepSNPs),
-                                      format = "Working on :current / :total genes for cell group :cell...",
-                                      show_after = 0)
-      
       if(length(keepSNPs) > 0){
-        
-        # Update progress bar:
-        pb$tick(tokens = list(cell = names(pvalues)[j]))
         
         # Extract gene expression information:
         Y = geneExpression[cellType %in% cellTypeGroups[[j]], as.list(quantile(.SD[[1]], mseq)), by = donorID, .SDcols = keepGenes[i]]
