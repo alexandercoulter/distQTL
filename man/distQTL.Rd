@@ -14,7 +14,8 @@ distQTL(
   m = 100,
   cisRange = 1e+05,
   minCells = 10,
-  minExpr = 0.01
+  minExpr = 0.01,
+  nPermutations = 1
 )
 }
 \arguments{
