@@ -31,7 +31,8 @@ distQTL = function(genotype = NULL,
                    m = 100,
                    cisRange = 1e5,
                    minCells = 10,
-                   minExpr = 0.01){
+                   minExpr = 0.01,
+                   numPermutations = 1){
   
   # Create "fake" global variables to trick parser that cannot properly
   # interpret data.table syntax:
@@ -100,8 +101,8 @@ distQTL = function(genotype = NULL,
       keepSNPs = snpNames[which(cisSNP)]
       
       # Initialize p-value storage:
-      pvalues[[j]][[i]] = rep(NA, length(keepSNPs))
-      names(pvalues[[j]][[i]]) = keepSNPs
+      pvalues[[j]][[i]] = matrix(NA, nrow = length(keepSNPs), ncol = 1 + numPermutations + sign(numPermutations))
+      rownames(pvalues[[j]][[i]]) = keepSNPs
       
       if(length(keepSNPs) > 0){
         
@@ -118,25 +119,62 @@ distQTL = function(genotype = NULL,
         Y = trimY(Y, lower = 0, upper = Inf)
         
         # Fit null model quantile functions and central quantile function:
-        Q0 = fastfrechet::frechetreg_univar2wass(Xcov_i, Y, lower = 0, upper = Inf)$Qhat
+        frechetregOutput = fastfrechet::frechetreg_univar2wass(Xcov_i, Y, lower = 0, upper = Inf)
+        Q0 = frechetregOutput$Qhat
+        Ci = frechetregOutput$Lagrange_Multiplier
         Qm = colMeans(Y)
         
-        # Loop over cis-SNPs:
+        # Loop over cis-SNPs to calculate raw p-values:
         for(k in seq_len(length(keepSNPs))){
           
           # Covariate matrix:
           X = cbind(Xcov_i, genotype[[which(colnames(genotype) == keepSNPs[k])]][wEnoughCells])
           
           # Run Wasserstein F test:
-          wass = Wasserstein_F(X = X,
-                               Y = Y,
-                               lower = 0,
-                               upper = Inf,
-                               Q0 = Q0,
-                               Qm = Qm,
-                               C_init = NULL,
-                               log.p = TRUE)
-          pvalues[[j]][[i]][k] = wass$p_value / log(10)
+          wassOutput = Wasserstein_F(X = X,
+                                     Y = Y,
+                                     lower = 0,
+                                     upper = Inf,
+                                     Q0 = Q0,
+                                     Qm = Qm,
+                                     C_init = Ci,
+                                     log.p = TRUE)
+          pvalues[[j]][[i]][k, 1] = wassOutput$p_value / log(10)
+          
+        }
+        
+        # Loop over numPermutations to calculate p-values under permutation:
+        for(p in seq_len(numPermutations)){
+          
+          # permute indices:
+          permute_indices = sample(nrow(Y))
+          
+          YP = Y[permute_indices, , drop = FALSE]
+          
+          # Fit null model quantile functions and central quantile function:
+          frechetregOutput = fastfrechet::frechetreg_univar2wass(Xcov_i, YP, lower = 0, upper = Inf)
+          Q0P = frechetregOutput$Qhat
+          CiP = frechetregOutput$Lagrange_Multiplier
+          QmP = colMeans(YP)
+          
+          # Loop over cis-SNPs to calculate permuted p-values:
+          for(k in seq_len(length(keepSNPs))){
+            
+            # Covariate matrix:
+            X = cbind(Xcov_i, genotype[[which(colnames(genotype) == keepSNPs[k])]][wEnoughCells])
+            
+            # Run Wasserstein F test:
+            wassOutput = Wasserstein_F(X = X,
+                                       Y = YP,
+                                       lower = 0,
+                                       upper = Inf,
+                                       Q0 = Q0P,
+                                       Qm = QmP,
+                                       C_init = CiP,
+                                       log.p = TRUE)
+            pvalues[[j]][[i]][k, p + 1] = wassOutput$p_value / log(10)
+            
+          }
           
         }
         
@@ -146,6 +184,35 @@ distQTL = function(genotype = NULL,
     
   }
   
+  # Perform p-value correction:
+  if(numPermutations > 0){
+    
+    # Get raw p-values and p-values under permutation:
+    rawPvalues = sapply(pvalues, function(a) sapply(a, function(b) b[ , 1]))
+    permPvalues = sapply(pvalues, function(a) sapply(a, function(b) b[ , -c(1, ncol(b))]))
+    
+    # Perform the correction:
+    correctedPvalues = p_correction(pa = rawPvalues, p0 = permPvalues, log10 = TRUE)
+    
+    # Remove unnecessary vectors:
+    rm(rawPvalues, nullPvalues)
+    
+    # Unlist p-value results and place corrected versions into NA slots:
+    unlistPvalues = unlist(pvalues)
+    unlistPvalues[is.na(unlistPvalues)] = correctedPvalues
+    
+    # Re-combine:
+    pvalues = relist(unlistPvalues, pvalues)
+
+  }
+  
   return(pvalues)
   
 }
+
+
+
+
+
+
+
