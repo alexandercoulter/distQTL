@@ -38,9 +38,11 @@ distQTL(
 \item{minCells}{A positive integer (default \code{10}) specifying the minimum number of cells a donor must have in order to be included in regression.  Evaluated per cell type group.}
 
 \item{minExpr}{A scalar between \eqn{(0, 1]} (default \code{0.01}) giving the minimum required proportion of cells, averaged across donors, that have positive gene expression.  For instance, if \code{minExpr = 0.10}, and there are 2 donors with 7\% and 11\% positive gene expression among their cells, respectively, then the average positive expression across donors is \eqn{(7 + 11)/2 = 9 \leq 10}\%.  This gene would then be considered "low expression", and excluded from distQTL calculations.}
+
+\item{nPermutations}{A non-negative integer (default \code{1}) giving the number of distQTL evaluations per gene-SNP pair, applied under permutation of responses. If nPermutations is positive, \code{distQTL} will also perform p-value correction using these p-values under permutation.}
 }
 \value{
-A nested list structure of distQTL p-values. First list layer splits by cell type group from \code{cellTypeGroups} input; next sub-layer splits by gene from gene columns of \code{geneExpression}; within each of these sub-layers is a vector of \eqn{\log_{10}(p)} values form distQTL, individually testing each cis-SNP conditioned on the covariates specified in \code{covariates}.
+A nested list structure of distQTL p-values. First list layer splits by cell type group from \code{cellTypeGroups} input; next sub-layer splits by gene from gene columns of \code{geneExpression}. Within each of these sub-layers is a matrix of \eqn{\log_{10}(p)}-values form distQTL. The first column is the raw distQTL \eqn{\log_{10}(p)}-values, individually testing each cis-SNP conditioned on the covariates specified in \code{covariates}. If \code{nPermutations > 0}, the next \code{nPermutations} columns give \eqn{\log_{10}(p)}-values from distQTL applied to data with permuted responses, one column per permutation. Also in that case, the last column gives \eqn{\log_{10}(p)}-values after bulk null-correction.
 }
 \description{
 distQTL
