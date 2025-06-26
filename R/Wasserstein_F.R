@@ -74,7 +74,7 @@ Wasserstein_F = function(X,
   SZY = Sigma[p, -p]
   A = solve(SYY, SZY)
   
-  SZ_Y = c(1 - SZY %*% A)
+  SZ_Y = c(n - SZY %*% A)
   
   Jt = c(-A, 1)
   C = crossprod(E, c(tcrossprod(Jt, X)^2) * E) / SZ_Y
