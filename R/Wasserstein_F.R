@@ -49,6 +49,7 @@ Wasserstein_F = function(X,
   p = ncol(X)
   
   if(is.null(test)) test = p
+  if((test %% 1) == 0 || test < 1 || test > p) stop("test must be NULL or an integer between 1 and p, inclusive.")
   
   if(is.null(Q0)) Q0 = fastfrechet::frechetreg_univar2wass(X = X[ , -test],
                                                            Y = Y,
