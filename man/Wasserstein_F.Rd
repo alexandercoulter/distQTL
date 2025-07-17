@@ -7,6 +7,7 @@
 Wasserstein_F(
   X,
   Y,
+  test = NULL,
   lower = -Inf,
   upper = Inf,
   Q0 = NULL,
@@ -19,6 +20,8 @@ Wasserstein_F(
 \item{X}{An \eqn{n \times p} covariate matrix (with no intercept column), whose last column is the one being tested.}
 
 \item{Y}{An \eqn{n \times m} matrix row-wise containing quantile function response objects.}
+
+\item{test}{A numeric integer (default \code{NULL}) between \code{1} and \code{ncol(X)} indicating which covariate to test; \code{NULL} means the last covariate of \code{X} is tested.}
 
 \item{lower}{A numeric scalar (default \code{-Inf}) setting the lower support box constraint.}
 

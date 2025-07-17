@@ -2,6 +2,7 @@
 #'
 #' @param X An \eqn{n \times p} covariate matrix (with no intercept column), whose last column is the one being tested.
 #' @param Y An \eqn{n \times m} matrix row-wise containing quantile function response objects.
+#' @param test A numeric integer (default `NULL`) between `1` and `ncol(X)` indicating which covariate to test; `NULL` means the last covariate of `X` is tested.
 #' @param lower A numeric scalar (default `-Inf`) setting the lower support box constraint.
 #' @param upper A numeric scalar (default `Inf`) setting the upper support box constraint.
 #' @param Q0 An optional (i.e. default `NULL`) \eqn{n \times m} matrix containing the fitted quantile functions from the null Fréchet regression model, i.e. the model removing the last column of `X`.
@@ -34,6 +35,7 @@
 #' output$p_value
 Wasserstein_F = function(X,
                          Y,
+                         test = NULL,
                          lower = -Inf,
                          upper = Inf,
                          Q0 = NULL,
@@ -46,7 +48,9 @@ Wasserstein_F = function(X,
   m = ncol(Y)
   p = ncol(X)
   
-  if(is.null(Q0)) Q0 = fastfrechet::frechetreg_univar2wass(X = X[ , -p],
+  if(is.null(test)) test = p
+  
+  if(is.null(Q0)) Q0 = fastfrechet::frechetreg_univar2wass(X = X[ , -test],
                                                            Y = Y,
                                                            C_init = C_init,
                                                            lower = lower,
@@ -70,8 +74,8 @@ Wasserstein_F = function(X,
   X = scaleX_cpp(X)
   Sigma = crossprod(X)
   
-  SYY = Sigma[-p, -p]
-  SZY = Sigma[p, -p]
+  SYY = Sigma[-test, -test]
+  SZY = Sigma[test, -test]
   A = solve(SYY, SZY)
   
   SZ_Y = c(n - SZY %*% A)
@@ -79,7 +83,7 @@ Wasserstein_F = function(X,
   Jt = c(-A, 1)
   C = crossprod(E, c(tcrossprod(Jt, X)^2) * E) / SZ_Y
   
-  s2 = mean(C * C)# sum all entries, sum of square eigenvalues
+  s2 = mean(C * C) # sum all entries, sum of square eigenvalues
   s1 = mean(diag(C)) # trace, sum of eigenvalues
   
   a = s2 / s1
