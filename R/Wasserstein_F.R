@@ -39,7 +39,6 @@ Wasserstein_F = function(X,
                          lower = -Inf,
                          upper = Inf,
                          Q0 = NULL,
-                         Qm = NULL,
                          C_init = NULL,
                          log.p = TRUE){
   
@@ -49,14 +48,25 @@ Wasserstein_F = function(X,
   p = ncol(X)
   
   if(is.null(test)) test = p
-  if((test %% 1) != 0 || test < 1 || test > p) stop("test must be NULL or an integer between 1 and p, inclusive.")
+  r = length(test)
+  # if((test %% 1) != 0 || test < 1 || test > p) stop("test must be NULL or an integer between 1 and p, inclusive.")
   
-  if(is.null(Q0)) Q0 = fastfrechet::frechetreg_univar2wass(X = X[ , -test],
-                                                           Y = Y,
-                                                           C_init = C_init,
-                                                           lower = lower,
-                                                           upper = upper)$Qhat
-  if(is.null(Qm)) Qm = colMeans(Y)
+  if(is.null(Q0)){
+    if(identical(test, 1:p)){
+      
+      Q0 = tcrossprod(rep(1, n), colMeans(Y))
+      
+    } else {
+      
+      Q0 = fastfrechet::frechetreg_univar2wass(X = X[ , -test],
+                                               Y = Y,
+                                               C_init = C_init,
+                                               lower = lower,
+                                               upper = upper)$Qhat
+      
+    }
+  }
+  
   Qa = fastfrechet::frechetreg_univar2wass(X = X,
                                            Y = Y,
                                            C_init = C_init,
@@ -68,32 +78,47 @@ Wasserstein_F = function(X,
   RR1 = sum(rowMeans((Qa - Y)^2))
   Fstat = (RR0 - RR1) / (RR1 / (n - p))
   
-  # Get E0:
+  # Get residual matrix:
   E = Qa - Y
   
   # Center and scale inputs:
   X = scaleX_cpp(X)
   Sigma = crossprod(X)
   
-  SYY = Sigma[-test, -test]
-  SZY = Sigma[test, -test]
-  A = solve(SYY, SZY)
+  # Center and scale inputs:
+  X = scaleX_cpp(X)
+  Sigma = crossprod(X)
   
-  SZ_Y = c(n - SZY %*% A)
+  SYY = Sigma[-test, -test, drop = FALSE]
+  SZY = Sigma[test, -test, drop = FALSE]
+  SYZ = t(SZY)
+  SZZ = Sigma[test, test, drop = FALSE]
+  A = solve(SYY, SYZ)
+  SZ_Y = SZZ - SZY %*% A
+  S = svd(SZ_Y)
+  Sroot = crossprod(t(S$u) / S$d^(1/4))
   
-  Jt = c(-A, 1)
-  C = crossprod(E, c(tcrossprod(Jt, X)^2) * E) / SZ_Y
+  J = matrix(0, p, r)
+  J[(1:p)[-test], ] = -A
+  J[cbind(test, 1:r)] = 1
   
-  s2 = mean(C * C) # sum all entries, sum of square eigenvalues
-  s1 = mean(diag(C)) # trace, sum of eigenvalues
+  LMat = tcrossprod(Sroot, J)
+  M = tcrossprod(X, LMat)
   
-  a = s2 / s1
-  b = s1 / a
+  # trace of covariance kernel
+  s1 = sum((M * M) * rowSums(E * E))
   
-  f1 = b
-  f2 = b * (n - p)
+  # sum of squared entries of covariance kernel
+  E2 = tcrossprod(E)
+  M2 = tcrossprod(M)
+  EM = E2 * M2
+  s2 = sum(EM * EM)
   
-  pval = if(log.p) pf(Fstat, f1, f2, lower.tail = F, log.p = TRUE) else pf(Fstat, f1, f2, lower.tail = F, log.p = FALSE)
+  a = s1 * s1 / s2
+  f1 = a * r
+  f2 = a * (n - p)
+  
+  pval = pf(Fstat, f1, f2, lower.tail = F, log.p = log.p)
   
   return(list('Fstat' = Fstat,
               'p_value' = pval,
