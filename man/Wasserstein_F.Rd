@@ -11,7 +11,6 @@ Wasserstein_F(
   lower = -Inf,
   upper = Inf,
   Q0 = NULL,
-  Qm = NULL,
   C_init = NULL,
   log.p = TRUE
 )
@@ -28,8 +27,6 @@ Wasserstein_F(
 \item{upper}{A numeric scalar (default \code{Inf}) setting the upper support box constraint.}
 
 \item{Q0}{An optional (i.e. default \code{NULL}) \eqn{n \times m} matrix containing the fitted quantile functions from the null Fréchet regression model, i.e. the model removing the last column of \code{X}.}
-
-\item{Qm}{An optional (i.e. default \code{NULL}) \eqn{n \times m} matrix containing the marginal Fréchet mean of the response quantile functions; is evaluated as \code{colMeans(Y)}.}
 
 \item{C_init}{An optional (i.e. default \code{NULL}) \eqn{n \times (m + 1)} matrix containing the initial Lagrangian for the QP-problem associated with the Fréchet regression problem. Positive entries correspond to active constraints; zero values correspond to inactive constraints. \code{NULL} is equivalent to specifying \code{C_init = matrix(0, n, m + 1)}.}
 
@@ -55,7 +52,7 @@ X <- mydata$X # (n x p) matrix of covariates
 Y <- mydata$Y # (n x m) matrix of EQFs, stored row-wise
 
 # Run Wasserstein F test on last covariate:
-output <- Wasserstein_F(X, Y, lower = 0, log.p = FALSE)
+output <- Wasserstein_F(X, Y, test = p, lower = 0, log.p = FALSE)
 
 # p-value is low:
 output$p_value

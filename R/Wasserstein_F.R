@@ -28,7 +28,7 @@
 #' Y <- mydata$Y # (n x m) matrix of EQFs, stored row-wise
 #' 
 #' # Run Wasserstein F test on last covariate:
-#' output <- Wasserstein_F(X, Y, lower = 0, log.p = FALSE)
+#' output <- Wasserstein_F(X, Y, test = p, lower = 0, log.p = FALSE)
 #' 
 #' # p-value is low:
 #' output$p_value
