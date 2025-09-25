@@ -23,7 +23,7 @@ arma::vec sumC(const arma::mat& M,
       C = tE * E2;
       if(i == j){
         sumc2 += arma::accu(C % C);
-        tracec += arma::accu(C.diag);
+        tracec += arma::accu(C.diag());
       } else {
         sumc2 += 2 * arma::accu(C % C);
       }
