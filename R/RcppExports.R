@@ -9,3 +9,7 @@ scaleX_cpp <- function(X, tol = 1e-10) {
     .Call(`_distQTL_scaleX_cpp`, X, tol)
 }
 
+sumC <- function(M, E) {
+    .Call(`_distQTL_sumC`, M, E)
+}
+

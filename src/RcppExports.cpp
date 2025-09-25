@@ -36,10 +36,23 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// sumC
+arma::vec sumC(const arma::mat& M, const arma::mat& E);
+RcppExport SEXP _distQTL_sumC(SEXP MSEXP, SEXP ESEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type M(MSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type E(ESEXP);
+    rcpp_result_gen = Rcpp::wrap(sumC(M, E));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_distQTL_p_correction", (DL_FUNC) &_distQTL_p_correction, 3},
     {"_distQTL_scaleX_cpp", (DL_FUNC) &_distQTL_scaleX_cpp, 2},
+    {"_distQTL_sumC", (DL_FUNC) &_distQTL_sumC, 2},
     {NULL, NULL, 0}
 };
 
