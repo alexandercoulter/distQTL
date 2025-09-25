@@ -85,10 +85,6 @@ Wasserstein_F = function(X,
   X = scaleX_cpp(X)
   Sigma = crossprod(X)
   
-  # Center and scale inputs:
-  X = scaleX_cpp(X)
-  Sigma = crossprod(X)
-  
   SYY = Sigma[-test, -test, drop = FALSE]
   SZY = Sigma[test, -test, drop = FALSE]
   SYZ = t(SZY)
