@@ -105,14 +105,20 @@ Wasserstein_F = function(X,
   LMat = tcrossprod(Sroot, J)
   M = tcrossprod(X, LMat)
   
-  # trace of covariance kernel
-  s1 = sum((M * M) * rowSums(E * E))
-  
-  # sum of squared entries of covariance kernel
-  E2 = tcrossprod(E)
-  M2 = tcrossprod(M)
-  EM = E2 * M2
-  s2 = sum(EM * EM)
+  if(r == 1){
+    output = sumC(M, E)
+    s1 = output[1]
+    s2 = output[2]
+  } else {
+    # trace of covariance kernel
+    s1 = sum((M * M) * rowSums(E * E))
+    
+    # sum of squared entries of covariance kernel
+    E2 = tcrossprod(E)
+    M2 = tcrossprod(M)
+    EM = E2 * M2
+    s2 = sum(EM * EM)
+  }
   
   a = s1 * s1 / s2
   f1 = a * r
