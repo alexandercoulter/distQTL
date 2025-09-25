@@ -6,7 +6,6 @@
 #' @param lower A numeric scalar (default `-Inf`) setting the lower support box constraint.
 #' @param upper A numeric scalar (default `Inf`) setting the upper support box constraint.
 #' @param Q0 An optional (i.e. default `NULL`) \eqn{n \times m} matrix containing the fitted quantile functions from the null Fréchet regression model, i.e. the model removing the last column of `X`.
-#' @param Qm An optional (i.e. default `NULL`) \eqn{n \times m} matrix containing the marginal Fréchet mean of the response quantile functions; is evaluated as `colMeans(Y)`.
 #' @param C_init An optional (i.e. default `NULL`) \eqn{n \times (m + 1)} matrix containing the initial Lagrangian for the QP-problem associated with the Fréchet regression problem. Positive entries correspond to active constraints; zero values correspond to inactive constraints. `NULL` is equivalent to specifying `C_init = matrix(0, n, m + 1)`.
 #' @param log.p A boolean value (default `TRUE`) specifying whether the \eqn{\log(p)}-value, rather than \eqn{p}-value, should be returned from the partial F test.
 #'
