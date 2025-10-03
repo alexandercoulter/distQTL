@@ -2,7 +2,7 @@
 #'
 #' @param X An \eqn{n \times p} covariate matrix (with no intercept column), whose last column is the one being tested.
 #' @param Y An \eqn{n \times m} matrix row-wise containing quantile function response objects.
-#' @param test A numeric integer (default `NULL`) between `1` and `ncol(X)` indicating which covariate to test; `NULL` means the last covariate of `X` is tested.
+#' @param test A set of integers (default `NULL`) from `{1, ..., ncol(X)}` indicating which covariate to test; `NULL` means a global test is conducted.
 #' @param lower A numeric scalar (default `-Inf`) setting the lower support box constraint.
 #' @param upper A numeric scalar (default `Inf`) setting the upper support box constraint.
 #' @param Q0 An optional (i.e. default `NULL`) \eqn{n \times m} matrix containing the fitted quantile functions from the null Fréchet regression model, i.e. the model removing the last column of `X`.
@@ -46,9 +46,13 @@ Wasserstein_F = function(X,
   m = ncol(Y)
   p = ncol(X)
   
-  if(is.null(test)) test = p
+  # If 'test' is NULL, set it to 1:p; grab 'test' size
+  if(is.null(test)) test = 1:p
+  test = sort(test)
   r = length(test)
-  # if((test %% 1) != 0 || test < 1 || test > p) stop("test must be NULL or an integer between 1 and p, inclusive.")
+  
+  # Exit if 'test' is empty or contains values outside of {1, ..., p}:
+  if((r == 0) || (min(test) < 1) || (max(test) > p)) stop("'test' must be a non-empty strict subset of integers from {1, ..., p}.")
   
   if(is.null(Q0)){
     if(identical(test, 1:p)){
@@ -79,6 +83,25 @@ Wasserstein_F = function(X,
   
   # Get residual matrix:
   E = Qa - Y
+  
+  # If 'test' == 1:p, then calculate simplified covariance kernel:
+  if(identical(test, 1:p)){
+    
+    C = crossprod(E) / n
+    s1 = mean(diag(C))
+    s2 = mean(C * C)
+    
+    a = s1 * s1 / s2
+    f1 = a * r
+    f2 = a * (n - p)
+    pval = pf(Fstat, f1, f2, lower.tail = F, log.p = log.p)
+    
+    return(list('Fstat' = Fstat,
+                'p_value' = pval,
+                'df1' = f1,
+                'df2' = f2))
+    
+  }
   
   # Center and scale inputs:
   X = scaleX_cpp(X)
@@ -116,8 +139,8 @@ Wasserstein_F = function(X,
   }
   
   a = s1 * s1 / s2
-  f1 = a * r
-  f2 = a * (n - p)
+  f1 = a
+  f2 = a * (n - p) / r
   
   pval = pf(Fstat, f1, f2, lower.tail = F, log.p = log.p)
   
