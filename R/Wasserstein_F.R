@@ -79,7 +79,7 @@ Wasserstein_F = function(X,
   # Get test statistic:
   RR0 = sum(rowMeans((Q0 - Y)^2))
   RR1 = sum(rowMeans((Qa - Y)^2))
-  Fstat = (RR0 - RR1) / (RR1 / (n - p))
+  Fstat = ((RR0 - RR1) / r) / (RR1 / (n - p))
   
   # Get residual matrix:
   E = Qa - Y
@@ -150,3 +150,4 @@ Wasserstein_F = function(X,
               'df2' = f2))
   
 }
+
