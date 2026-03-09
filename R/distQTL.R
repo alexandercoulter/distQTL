@@ -96,15 +96,12 @@ distQTL = function(genotype = NULL,
     
     # Make progress bar:
     pb = progress::progress_bar$new(total = length(keepGenes),
-                                    format = "Working on :current / :total genes for cell group :cell...",
+                                    format = "Finished :current / :total genes for cell group :cell...",
                                     show_after = 0)
     
     for(i in seq_len(length(keepGenes))){
       
-      # Update progress bar:
-      pb$tick(tokens = list(cell = names(pvalues)[j]))
-      
-      # i = 2
+      # i = 18
       # Find cis-SNPs:
       wGI = which(geneInfo$geneID == keepGenes[i])
       cisSNP = (snpInfo$chromosome == geneInfo$chromosome[wGI]) & (abs(geneInfo$start[wGI] - snpInfo$start) <= cisRange)
@@ -199,6 +196,9 @@ distQTL = function(genotype = NULL,
         }
         
       }
+      
+      # Update progress bar:
+      pb$tick(tokens = list(cell = names(pvalues)[j]))
       
     }
     
