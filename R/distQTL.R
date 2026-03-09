@@ -155,7 +155,6 @@ distQTL = function(genotype = NULL,
                                      lower = 0,
                                      upper = Inf,
                                      Q0 = Q0,
-                                     Qm = Qm,
                                      C_init = Ci,
                                      log.p = TRUE)
           pvalues[[j]][[i]][k, 1] = wassOutput$p_value / log(10)
@@ -188,7 +187,6 @@ distQTL = function(genotype = NULL,
                                        lower = 0,
                                        upper = Inf,
                                        Q0 = Q0P,
-                                       Qm = QmP,
                                        C_init = CiP,
                                        log.p = TRUE)
             pvalues[[j]][[i]][k, p + 1] = wassOutput$p_value / log(10)

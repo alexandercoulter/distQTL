@@ -39,7 +39,8 @@ Wasserstein_F = function(X,
                          upper = Inf,
                          Q0 = NULL,
                          C_init = NULL,
-                         log.p = TRUE){
+                         log.p = TRUE,
+                         kernel_method = 1){
   
   # Get dimensions:
   n = nrow(X)
@@ -123,7 +124,7 @@ Wasserstein_F = function(X,
   LMat = tcrossprod(Sroot, J)
   M = tcrossprod(X, LMat)
   
-  if(r == 1){
+  if(kernel_method == 1){
     output = sumC(M, E)
     s1 = output[1]
     s2 = output[2]
@@ -150,4 +151,3 @@ Wasserstein_F = function(X,
               'df2' = f2))
   
 }
-
