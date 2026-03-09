@@ -104,7 +104,7 @@ distQTL = function(genotype = NULL,
       # Update progress bar:
       pb$tick(tokens = list(cell = names(pvalues)[j]))
       
-      # i = 1
+      # i = 2
       # Find cis-SNPs:
       wGI = which(geneInfo$geneID == keepGenes[i])
       cisSNP = (snpInfo$chromosome == geneInfo$chromosome[wGI]) & (abs(geneInfo$start[wGI] - snpInfo$start) <= cisRange)
@@ -146,12 +146,14 @@ distQTL = function(genotype = NULL,
         # Loop over cis-SNPs to calculate raw p-values:
         for(k in seq_len(length(keepSNPs))){
           
+          # k = 1
           # Covariate matrix:
           X = cbind(Xcov_i, genotype[[which(colnames(genotype) == keepSNPs[k])]][wEnoughCells])
           
           # Run Wasserstein F test:
           wassOutput = Wasserstein_F(X = X,
                                      Y = Y,
+                                     test = ncol(X),
                                      lower = 0,
                                      upper = Inf,
                                      Q0 = Q0,
@@ -184,6 +186,7 @@ distQTL = function(genotype = NULL,
             # Run Wasserstein F test:
             wassOutput = Wasserstein_F(X = X,
                                        Y = YP,
+                                       test = ncol(X),
                                        lower = 0,
                                        upper = Inf,
                                        Q0 = Q0P,
